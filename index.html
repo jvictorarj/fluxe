@@ -1123,7 +1123,7 @@ function renderAnalysis(c){
   const dI = (kind, a, b, good = 'up') => {
     if (!isN(a) || !isN(b)) return {t: '—', c: ''};
     const d = b - a, ar = d >= 0 ? '▲ ' : '▼ ';
-    if (d === 0) return {t: 'sem variação vs. ano anterior', c: ''};
+    if (Math.abs(d) < 1e-9) return {t: '-', c: ''};
     let tx;
     if (kind === 'pp') tx = ar + nf1.format(Math.abs(d * 100)) + ' p.p';
     else if (kind === 'x') tx = ar + nf2.format(Math.abs(d)) + 'x';
@@ -1133,15 +1133,15 @@ function renderAnalysis(c){
   };
   const K = (label, val, d, neg, note) => kpiCard(label, val, d.t, d.c, neg ? 'neg' : '', note);
   h += `<div class="kpis4">` +
-    K('Receita Líquida', nf0.format(Math.round(s1.rl)), dI('pct', s0.rl, s1.rl)) +
+    K('Receita Líquida (RL)', nf0.format(Math.round(s1.rl)), dI('pct', s0.rl, s1.rl)) +
     K('Margem Bruta', fmtVal('pct', VAL[1].mb), dI('pp', VAL[0].mb, VAL[1].mb)) +
     K('Margem Líquida', fmtVal('pct', VAL[1].m_liq), dI('pp', VAL[0].m_liq, VAL[1].m_liq), isN(VAL[1].m_liq) && VAL[1].m_liq < 0) +
     K('Capital Circ. Líquido (CCL)', nf0.format(Math.round(VAL[1].ccl)), dI('abs', VAL[0].ccl, VAL[1].ccl), VAL[1].ccl < 0) +
     K('Patrimônio Líquido', nf0.format(Math.round(s1.pl)), dI('pct', s0.pl, s1.pl), s1.pl < 0) +
     K('Fluxo de Caixa Livre (FCL)', nf0.format(Math.round(VAL[1].fcl)), dI('abs', VAL[0].fcl, VAL[1].fcl), VAL[1].fcl < 0) +
     K('Liquidez Corrente', fmtVal('x', VAL[1].lc), dI('x', VAL[0].lc, VAL[1].lc)) +
-    K('CMV', nf0.format(Math.round(s1.cmv)), dI('pct', s0.cmv, s1.cmv, 'down'), false, isN(VAL[1].cmv) ? fmtVal('pct', VAL[1].cmv) + ' da rec. líq.' : '') +
-    K('Total SG&A', nf0.format(Math.round(s1.dv + s1.ga)), dI('pct', s0.dv + s0.ga, s1.dv + s1.ga, 'down'), false, isN(VAL[1].sga) ? fmtVal('pct', VAL[1].sga) + ' da rec. líq.' : '') +
+    K('CMV', nf0.format(Math.round(s1.cmv)), dI('pct', s0.cmv, s1.cmv, 'down'), false, isN(VAL[1].cmv) ? fmtVal('pct', VAL[1].cmv) + ' da RL' : '') +
+    K('Total SG&A', nf0.format(Math.round(s1.dv + s1.ga)), dI('pct', s0.dv + s0.ga, s1.dv + s1.ga, 'down'), false, isN(VAL[1].sga) ? fmtVal('pct', VAL[1].sga) + ' da RL' : '') +
     K('Dívida Bruta', nf0.format(Math.round(VAL[1].db)), dI('pct', VAL[0].db, VAL[1].db, 'down')) + `</div>`;
   const SEM = {g: '#22C55E', y: '#FACC15', r: '#EF4444'};   // semáforo do velocímetro
   const gauge = (v, prev) => {
