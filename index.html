@@ -130,6 +130,7 @@ input.num::placeholder{color:#b6c0cd}
 input.num.autoph::placeholder{color:#7c8ba1;font-style:italic}
 .neg{color:var(--danger)}
 .pos{color:var(--ok)}
+.swipe{display:none;margin:0 0 8px;font-size:12px;color:var(--muted);font-weight:600}
 .next{display:flex;justify-content:space-between;margin-top:18px;gap:10px;flex-wrap:wrap}
 /* analysis */
 .kpis4{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:12px;margin-bottom:16px}
@@ -214,7 +215,7 @@ footer a{color:#cbd5e1}
   .kpis4{grid-template-columns:1fr 1fr}
   .charts{grid-template-columns:1fr}
   .fields{grid-template-columns:1fr 1fr}
-  .bp-layout{grid-template-columns:1fr}
+  .bp-layout{grid-template-columns:minmax(0,1fr)}
   .bp-aside{grid-column:1;grid-row:auto;position:static}
   .nav nav{display:none}
   .nav .wrap{justify-content:space-between}
@@ -223,9 +224,23 @@ footer a{color:#cbd5e1}
   .cards3,.steps{grid-template-columns:1fr}
   section{padding:48px 0}
   .hero .wrap{padding-top:44px;padding-bottom:52px}
-  table.st td.lbl{width:auto}
-  :root{--navh:52px}
-  .col-var{display:none}
+    :root{--navh:52px}
+  .swipe{display:block}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.st{min-width:560px}
+  table.st th{position:static}
+  table.st th:first-child{position:sticky}
+  table.st td.lbl,table.st th:first-child{position:sticky;left:0;z-index:1;background:#fff;width:132px;min-width:132px;max-width:132px;box-shadow:2px 0 0 #eef2f7}
+  table.st th:first-child{z-index:3}
+  table.st tr.calc td.lbl{background:#F1F5F9}
+  table.st tr.top td.lbl{background:var(--navy)}
+  table.st tr.grp.g td.lbl{background:#D9F7E4} table.st tr.grp.y td.lbl{background:#FEF6B8} table.st tr.grp.b td.lbl{background:#D6ECFB} table.st tr.grp.n td.lbl{background:#E8EEF6}
+  table.st tr.hl td.lbl{background:#DDF3EA}
+  table.st tr.subrow td.lbl{background:#FAFBFD}
+  table.ind td.l{position:sticky;left:0;z-index:1;background:#fff;min-width:150px;max-width:150px;box-shadow:2px 0 0 #eef2f7}
+  table.ind th:first-child{position:sticky;left:0;z-index:2;background:#fff}
+  table.ind tr.alerts td.l{background:#F8FBFF}
+  table.ind{min-width:700px}
   .panel-body{padding:14px 10px}
   .app-top{padding:14px 12px}
   input.num{min-width:78px;padding:6px 7px;font-size:13px}
@@ -786,7 +801,7 @@ const yl = y => state.meta[y ? 'y1' : 'y0'] || (y ? 'Ano atual' : 'Ano anterior'
 
 /* ------------------------------------------------------------------ painéis de preenchimento */
 function buildStatement(panel, rows, intro, nextLabel, nextTab, opts = {}){
-  let h = intro + '<table class="st' + (opts.indent ? ' indent' : '') + '"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th></tr></thead><tbody>';
+  let h = intro + '<p class="swipe">Deslize a tabela para o lado para ver a variação →</p><div class="tscroll"><table class="st' + (opts.indent ? ' indent' : '') + '"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th></tr></thead><tbody>';
   rows.forEach(r => {
     if (r.sec) { h += `<tr class="sec"><td colspan="5">${esc(r.sec)}</td></tr>`; return; }
     const cls = r.c ? ['calc', r.top ? 'top' : '', r.grp ? 'grp ' + r.grp : '', r.chk && !r.top ? 'chk' : '', r.subrow || r.sub ? 'subrow' : ''].filter(Boolean).join(' ') : (r.hl ? 'hl' : '');
@@ -801,7 +816,7 @@ function buildStatement(panel, rows, intro, nextLabel, nextTab, opts = {}){
         `<td class="v col-var" data-vp="${r.k}"></td><td class="v col-var" data-vd="${r.k}"></td></tr>`;
     }
   });
-  h += '</tbody></table>';
+  h += '</tbody></table></div>';
   const tail = `<div id="chk-${panel}"></div>${opts.extra || ''}<div class="next">${nextTab ? `<span></span><button class="btn primary" data-go="${nextTab}" type="button">${nextLabel} →</button>` : ''}</div>`;
   if (opts.aside) h = `<div class="bp-layout"><div>${h}${tail}</div><aside class="bp-aside" id="bpAside" aria-label="Visão do patrimônio"></aside></div>`;
   else h += tail;
