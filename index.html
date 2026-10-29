@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluxe · Análise de DRE, Balanço e Fluxo de Caixa</title>
+<meta name="description" content="Preencha a DRE, o Balanço Patrimonial e a DFC e veja mais de 120 indicadores com referência, explicação em português e verificações automáticas.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B1F44'/%3E%3Ctext x='14' y='46' font-family='Arial' font-weight='800' font-size='40' fill='white'%3Ef%3C/text%3E%3Ccircle cx='46' cy='42' r='5' fill='%232563EB'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B1F44; --navy2:#102a5c; --blue:#2563EB; --green:#10B981;
+  --bg:#E5E7EB; --surface:#F8FAFC; --text:#1F2937; --muted:#64748B; --line:#E2E8F0;
+  --danger:#B91C1C; --danger-bg:#FEE2E2; --ok-bg:#D1FAE5; --ok:#047857; --warn-bg:#FEF3C7; --warn:#92400E;
+  --radius:14px; --shadow:0 1px 2px rgba(15,23,42,.06),0 6px 20px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--surface);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+button{font-family:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.logo{font-weight:800;letter-spacing:-.045em;color:#fff;font-size:28px;line-height:1}
+.logo i{color:var(--blue);font-style:normal}
+.logo.dark{color:var(--navy)}
+/* nav */
+.nav{background:var(--navy);position:sticky;top:0;z-index:50}
+.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.nav nav{display:flex;gap:22px;flex:1}
+.nav nav a{color:#cbd5e1;font-size:14px;font-weight:500}
+.nav nav a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:9px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
+.btn.primary{background:var(--blue);color:#fff}
+.btn.primary:hover{background:#1d4ed8}
+.btn.ghost{background:transparent;color:#fff;padding-left:6px}
+.btn.light{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btn.light:hover{border-color:var(--blue);color:var(--blue)}
+.btn.sm{padding:8px 12px;font-size:13px}
+/* hero */
+.hero{background:radial-gradient(1200px 500px at 85% 20%,rgba(37,99,235,.35),transparent 60%),linear-gradient(180deg,var(--navy),#07142e);color:#fff;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;padding-top:72px;padding-bottom:84px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#60a5fa}
+.hero h1{font-size:clamp(34px,5vw,52px);line-height:1.08;margin:14px 0 18px;letter-spacing:-.03em;font-weight:800}
+.hero h1 em{font-style:normal;color:#3b82f6}
+.hero p.lead{color:#cbd5e1;font-size:17px;max-width:520px;margin:0 0 28px}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.mock{background:rgba(15,31,68,.85);border:1px solid rgba(148,163,184,.25);border-radius:18px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.mock .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.mock .top b{font-size:15px}
+.mock .tag{font-size:11px;color:#94a3b8}
+.mock .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mock .kpi{background:rgba(255,255,255,.05);border-radius:12px;padding:12px}
+.mock .kpi small{display:block;color:#94a3b8;font-size:11px}
+.mock .kpi b{font-size:16px;display:block;margin:2px 0}
+.mock .kpi span{font-size:11px;color:var(--green)}
+.mock .row2{display:grid;grid-template-columns:1.5fr 1fr;gap:10px;margin-top:10px}
+.mock .panel{background:rgba(255,255,255,.05);border-radius:12px;padding:12px}
+.mock .panel small{display:block;color:#cbd5e1;font-size:11px;margin-bottom:8px;font-weight:600}
+.legend{display:flex;gap:12px;font-size:11px;color:#cbd5e1;margin-top:8px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+/* sections */
+section{padding:72px 0}
+section.alt{background:var(--bg)}
+.sec-head{max-width:620px;margin-bottom:34px}
+.sec-head .eyebrow{color:var(--blue)}
+.sec-head h2{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.025em;line-height:1.15;margin:10px 0;color:var(--navy)}
+.sec-head p{color:var(--muted);margin:0}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.card .ic{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:#EAF1FF;color:var(--blue);font-weight:800;margin-bottom:14px}
+.card.g .ic{background:#DDF7EC;color:var(--green)}
+.card h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.step{background:#fff;border-radius:var(--radius);padding:22px;border:1px solid var(--line);position:relative}
+.step:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:14px;margin-bottom:12px}
+.step h4{margin:0 0 4px;color:var(--navy)}
+.step p{margin:0;font-size:14px;color:var(--muted)}
+.checks{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
+.checks li{display:flex;gap:10px;font-weight:500;font-size:15px}
+.checks li:before{content:"✓";display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:5px;background:var(--blue);color:#fff;font-size:12px;margin-top:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+/* app */
+#app{background:var(--bg);padding:56px 0 72px}
+.app-card{background:#fff;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:clip}
+.app-top{padding:18px 20px;border-bottom:1px solid var(--line);display:grid;gap:14px}
+.fields{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid #cbd5e1;border-radius:9px;font:inherit;font-size:14px;background:#fff;color:var(--text)}
+.field input:focus,.field select:focus,input.num:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;padding:10px 14px 0;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;background:transparent;padding:12px 16px;font-weight:600;font-size:14px;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.tab:hover{color:var(--navy)}
+.tab[aria-selected=true]{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#e2e8f0;color:var(--navy);font-size:12px}
+.tab[aria-selected=true] .n{background:var(--blue);color:#fff}
+.tab .st{font-size:12px}
+.tab .st.ok{color:var(--green)} .tab .st.bad{color:var(--danger)}
+.panel-body{padding:20px}
+.panel-body[hidden]{display:none}
+.note{background:#EFF6FF;border:1px solid #BFDBFE;color:#1e3a8a;border-radius:10px;padding:11px 14px;font-size:13.5px;margin-bottom:16px}
+.note.warn{background:var(--warn-bg);border-color:#FDE68A;color:var(--warn)}
+.note.bad{background:var(--danger-bg);border-color:#FCA5A5;color:var(--danger)}
+.note.good{background:var(--ok-bg);border-color:#6EE7B7;color:var(--ok)}
+table.st{width:100%;border-collapse:collapse;font-size:14px}
+table.st th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 8px;border-bottom:1px solid var(--line);position:sticky;top:64px;background:#fff;z-index:2}
+table.st th:first-child{text-align:left}
+table.st td{padding:4px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+table.st td.lbl{width:42%}
+table.st td.lbl small{display:block;color:var(--muted);font-size:12px;line-height:1.3;margin-top:1px}
+table.st td.v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.st tr.sec td{background:var(--surface);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding:9px 8px}
+table.st tr.calc td{background:#F1F5F9;font-weight:700;color:var(--navy)}
+table.st tr.hl td{background:#DDF3EA}
+table.st tr.chk td{background:#EAF1FF}
+input.num{width:100%;min-width:104px;text-align:right;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;background:#fff}
+input.num.bad{border-color:var(--danger);background:var(--danger-bg)}
+input.num.auto{background:#F1F5F9;color:var(--muted)}
+.neg{color:var(--danger)}
+.pos{color:var(--ok)}
+.next{display:flex;justify-content:space-between;margin-top:18px;gap:10px;flex-wrap:wrap}
+/* analysis */
+.kpis4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi4{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface)}
+.kpi4 small{color:var(--muted);font-size:12px;font-weight:600}
+.kpi4 b{display:block;font-size:22px;color:var(--navy);letter-spacing:-.02em;margin:2px 0}
+.kpi4 span{font-size:12.5px;font-weight:600}
+.charts{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:12px;margin-bottom:18px}
+.chart{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
+.chart h5{margin:0 0 8px;font-size:13px;color:var(--navy)}
+.chart svg{width:100%;height:auto;display:block}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.lg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.blocknav{position:sticky;top:64px;z-index:5;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;box-shadow:var(--shadow)}
+.blocknav a{font-size:12.5px;font-weight:600;color:var(--navy);padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.blocknav a:hover{border-color:var(--blue);color:var(--blue)}
+.blocknav a.has-bad:after{content:"";display:inline-block;width:7px;height:7px;background:#EF4444;border-radius:50%;margin-left:6px}
+.opts{display:flex;gap:16px;align-items:center;margin:0 0 12px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.block{border:1px solid var(--line);border-radius:14px;margin-bottom:16px;background:#fff;overflow:hidden;scroll-margin-top:130px}
+.block.first{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.block>header{padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.block.first>header{background:#EAF1FF}
+.block>header h3{margin:0;font-size:15px;letter-spacing:.02em;color:var(--navy)}
+.block>header h3 span{color:var(--blue)}
+.block>header p{margin:0;font-size:13.5px;color:var(--muted)}
+.scroll{overflow-x:auto}
+table.ind{width:100%;border-collapse:collapse;font-size:13.5px;min-width:760px}
+table.ind th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding:8px 8px;border-bottom:1px solid var(--line);background:#fff;white-space:nowrap}
+table.ind th:first-child{text-align:left}
+table.ind td{padding:7px 8px;border-bottom:1px solid #f1f5f9;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.ind td.l{text-align:left;white-space:normal;min-width:240px}
+table.ind td.l button{all:unset;cursor:pointer;display:inline-flex;gap:6px;align-items:flex-start}
+table.ind td.l button:hover{color:var(--blue)}
+table.ind td.l .i{flex:none;width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:var(--navy);font-size:10px;font-weight:700;display:grid;place-items:center;margin-top:2px}
+table.ind td.ref{text-align:left;color:var(--muted);font-size:12.5px;white-space:normal;min-width:130px}
+table.ind tr.sub td{background:var(--surface);text-align:left;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+table.ind tr.ex td{background:#F8FBFF;text-align:left;white-space:normal;color:#334155;font-size:13px;padding:10px 14px 12px 32px;border-bottom:1px solid var(--line)}
+table.ind tr.ex[hidden]{display:none}
+table.ind .arrow{color:#94a3b8}
+.chip{display:inline-block;min-width:74px;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;letter-spacing:.03em}
+.chip.OK{background:var(--ok-bg);color:var(--ok)}
+.chip.AT{background:var(--danger-bg);color:var(--danger)}
+.chip.NA{background:#F1F5F9;color:#94a3b8;font-weight:600}
+.var.g{color:var(--ok);font-weight:600}.var.r{color:var(--danger);font-weight:600}
+td.in input.num{min-width:84px;background:#FFF7DB;border-color:#FCD34D}
+.alerts td{font-weight:700;background:#F8FBFF}
+.go{color:var(--blue);font-weight:600;cursor:pointer}
+/* footer */
+footer{background:var(--navy);color:#94a3b8;padding:34px 0;font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer a{color:#cbd5e1}
+.cta-band{background:linear-gradient(180deg,var(--navy),#07142e);color:#fff;border-radius:18px;padding:36px;display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}
+.cta-band h2{margin:0 0 6px;font-size:26px;letter-spacing:-.02em}
+.cta-band p{margin:0;color:#cbd5e1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1}
+@media(max-width:960px){
+  .hero .wrap,.two{grid-template-columns:1fr}
+  .cards3,.steps{grid-template-columns:1fr 1fr}
+  .kpis4{grid-template-columns:1fr 1fr}
+  .charts{grid-template-columns:1fr}
+  .fields{grid-template-columns:1fr 1fr}
+  .nav nav{display:none}
+  .nav .wrap{justify-content:space-between}
+}
+@media(max-width:620px){
+  .cards3,.steps{grid-template-columns:1fr}
+  section{padding:48px 0}
+  .hero .wrap{padding-top:44px;padding-bottom:52px}
+  table.st td.lbl{width:auto}
+  .col-var{display:none}
+  .mock .kpis{grid-template-columns:1fr 1fr}
+  .mock .kpis .kpi:last-child{display:none}
+}
+@media print{
+  .nav,.hero,#funcionalidades,#como,#sobre,.cta-band,footer,.tabs,.app-top .tools,.blocknav,.next,.opts,.toast{display:none!important}
+  body,#app{background:#fff}
+  .panel-body[hidden]{display:block!important}
+  .app-card{box-shadow:none;border:0}
+  .block{break-inside:avoid}
+  tr.ex{display:table-row!important}
+  table.st th,.blocknav{position:static}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="Fluxe">fluxe<i>.</i></a>
+    <nav aria-label="Principal">
+      <a href="#funcionalidades">Funcionalidades</a>
+      <a href="#como">Como funciona</a>
+      <a href="#app">Analisar</a>
+      <a href="#sobre">Sobre</a>
+    </nav>
+    <a class="btn primary" href="#app" data-go="dre">Comece agora</a>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Análise financeira</div>
+      <h1>Veja o que os números realmente dizem sobre o <em>seu negócio.</em></h1>
+      <p class="lead">Preencha a DRE, o Balanço Patrimonial e a DFC e receba uma análise completa: do check-up inicial, em poucos indicadores, até os blocos mais detalhados, com referência e explicação em português.</p>
+      <div class="cta">
+        <a class="btn primary" href="#app" data-go="dre">Comece agora &nbsp;→</a>
+        <button class="btn ghost" id="heroExample" type="button">Ver exemplo</button>
+      </div>
+    </div>
+    <div class="mock" aria-hidden="true">
+      <div class="top"><span class="logo" style="font-size:20px">fluxe<i>.</i></span><span class="tag">Exemplo ilustrativo</span></div>
+      <b style="font-size:14px">Check-up inicial</b>
+      <div class="kpis" style="margin-top:10px">
+        <div class="kpi"><small>Receita Líquida</small><b>R$ 12.450</b><span>▲ 12,4% vs. ano anterior</span></div>
+        <div class="kpi"><small>Lucro Líquido</small><b>R$ 2.310</b><span>▲ 8,7% vs. ano anterior</span></div>
+        <div class="kpi"><small>Margem EBITDA</small><b>18,5%</b><span>▲ 2,3 p.p.</span></div>
+      </div>
+      <div class="row2">
+        <div class="panel"><small>Evolução do resultado</small>
+          <svg viewBox="0 0 300 110" width="100%"><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".45"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+          <path d="M0 90 L30 80 L60 84 L90 66 L120 70 L150 54 L180 58 L210 40 L240 34 L270 22 L300 14 L300 110 L0 110Z" fill="url(#g1)"/>
+          <path d="M0 90 L30 80 L60 84 L90 66 L120 70 L150 54 L180 58 L210 40 L240 34 L270 22 L300 14" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="panel"><small>Composição do ativo</small>
+          <svg viewBox="0 0 120 110" width="100%"><circle cx="60" cy="55" r="36" fill="none" stroke="#10B981" stroke-width="16"/><circle cx="60" cy="55" r="36" fill="none" stroke="#2563EB" stroke-width="16" stroke-dasharray="95 226" transform="rotate(-90 60 55)"/></svg>
+          <div class="legend"><span><i style="background:#2563EB"></i>Circulante</span><span><i style="background:#10B981"></i>Não circ.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="funcionalidades">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Tudo o que você precisa</div>
+      <h2>Os 3 demonstrativos. Em uma só análise.</h2>
+      <p>Uma visão completa da saúde financeira da empresa, com indicadores claros, verificações automáticas e diagnósticos objetivos.</p>
+    </div>
+    <div class="cards3">
+      <div class="card"><div class="ic">DRE</div><h3>DRE</h3><p>Entenda a rentabilidade e o desempenho: margens, qualidade do resultado, crescimento e opex.</p></div>
+      <div class="card g"><div class="ic">BP</div><h3>Balanço Patrimonial</h3><p>Avalie a estrutura de capital, a liquidez, o capital de giro e o peso da dívida, separando o que cobra juros do que não cobra.</p></div>
+      <div class="card"><div class="ic">DFC</div><h3>Fluxo de Caixa</h3><p>Acompanhe a geração e o uso do caixa: FCO, caixa livre, capex, dividendos e conversão do lucro em dinheiro.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="como" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Como funciona</div>
+      <h2>Do mais simples ao mais complexo.</h2>
+      <p>A análise começa como uma consulta médica: poucos sinais vitais primeiro; só se algo estiver fora do normal você desce para os exames detalhados.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><h4>Preencha a DRE</h4><p>Receita, custos, despesas e resultado, na ordem em que aparecem no demonstrativo.</p></div>
+      <div class="step"><h4>Preencha o Balanço</h4><p>Ativo, passivo e patrimônio líquido. O Fluxe confere se o balanço fecha.</p></div>
+      <div class="step"><h4>Preencha a DFC</h4><p>O lucro e a depreciação vêm da DRE. O Fluxe confere se o caixa final bate com o do balanço.</p></div>
+      <div class="step"><h4>Leia a análise</h4><p>Check-up inicial, depois 15 blocos com cada indicador, referência e explicação.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="app" aria-label="Aplicativo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Analisar</div>
+      <h2>Preencha e analise.</h2>
+      <p>Os dados ficam só no seu navegador: nada é enviado a servidor algum. Use "Salvar arquivo" para guardar o seu trabalho.</p>
+    </div>
+    <div class="app-card">
+      <div class="app-top">
+        <div class="fields">
+          <div class="field"><label for="company">Empresa</label><input id="company" placeholder="Nome da empresa" autocomplete="off"></div>
+          <div class="field"><label for="unit">Unidade</label>
+            <select id="unit"><option>R$</option><option selected>R$ mil</option><option>R$ milhões</option></select></div>
+          <div class="field"><label for="y0">Ano anterior</label><input id="y0" value="2024" maxlength="12"></div>
+          <div class="field"><label for="y1">Ano atual</label><input id="y1" value="2025" maxlength="12"></div>
+        </div>
+        <div class="tools">
+          <button class="btn light sm" id="bExample" type="button">Carregar exemplo (Flamengo)</button>
+          <button class="btn light sm" id="bSave" type="button">Salvar arquivo</button>
+          <button class="btn light sm" id="bOpen" type="button">Abrir arquivo</button>
+          <input type="file" id="fileIn" accept=".json,application/json" hidden>
+          <button class="btn light sm" id="bCsv" type="button">Baixar indicadores (CSV)</button>
+          <button class="btn light sm" id="bPdf" type="button">Imprimir / PDF</button>
+          <button class="btn light sm" id="bClear" type="button">Limpar tudo</button>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Etapas">
+        <button class="tab" role="tab" id="t-dre" data-tab="dre" aria-selected="true"><span class="n">1</span>DRE</button>
+        <button class="tab" role="tab" id="t-bp" data-tab="bp" aria-selected="false"><span class="n">2</span>Balanço <span class="st" id="st-bp"></span></button>
+        <button class="tab" role="tab" id="t-dfc" data-tab="dfc" aria-selected="false"><span class="n">3</span>DFC <span class="st" id="st-dfc"></span></button>
+        <button class="tab" role="tab" id="t-an" data-tab="an" aria-selected="false"><span class="n">4</span>Análise</button>
+      </div>
+      <div class="panel-body" id="p-dre" role="tabpanel"></div>
+      <div class="panel-body" id="p-bp" role="tabpanel" hidden></div>
+      <div class="panel-body" id="p-dfc" role="tabpanel" hidden></div>
+      <div class="panel-body" id="p-an" role="tabpanel" hidden></div>
+    </div>
+  </div>
+</section>
+
+<section id="sobre" class="alt">
+  <div class="wrap two">
+    <div>
+      <div class="eyebrow" style="color:var(--blue)">Mais que dados</div>
+      <h2 style="font-size:clamp(26px,3.4vw,36px);letter-spacing:-.025em;line-height:1.15;margin:10px 0;color:var(--navy)">Informação que gera resultado.</h2>
+      <p style="color:var(--muted)">Cada indicador mostra os dois anos, a variação, se subir é bom ou ruim, a referência usada e uma explicação em linguagem simples. As referências são regras práticas de análise: compare sempre com empresas do mesmo setor.</p>
+      <ul class="checks">
+        <li>Check-up inicial com semáforo (OK / ATENÇÃO)</li>
+        <li>Mais de 120 indicadores em 16 blocos, com referência e explicação</li>
+        <li>Verificações: o balanço fecha? o caixa da DFC bate com o do balanço?</li>
+        <li>Custo de capital, WACC, spread e EVA com premissas editáveis</li>
+        <li>Salvar o trabalho, baixar CSV e imprimir em PDF</li>
+      </ul>
+    </div>
+    <div class="cta-band" style="flex-direction:column;align-items:flex-start">
+      <div><h2>Sua empresa mais clara, do número à estratégia.</h2><p>Comece agora ou veja o exemplo pronto.</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn primary" href="#app" data-go="dre">Comece agora →</a><button class="btn ghost" id="cta2" type="button">Ver exemplo</button></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo" style="font-size:22px">fluxe<i>.</i></span>
+    <span>Mais clareza para grandes decisões. Material educacional: não é recomendação de investimento.</span>
+    <span>© 2026 Fluxe.</span>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+const META = {"blocks": [{"id": "checkup", "num": 1, "title": "CHECK-UP INICIAL", "question": "De bate-pronto, a empresa está bem? Onde aparecer ATENÇÃO, desça ao bloco indicado.", "items": [{"sub": "ALTURA E PESO  ·  qual é o tamanho da empresa?"}, {"id": "c_rl", "label": "Receita Líquida", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "É quanto a empresa vendeu no ano, já sem impostos e devoluções. Dá a noção do tamanho do negócio (na unidade da demonstração, ex.: R$ mil).  →  Detalhe no bloco 2 (ESTRUTURA PATRIMONIAL).", "direct": true}, {"id": "c_ativo", "label": "Ativo Total", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "É tudo o que a empresa tem: caixa, valores a receber, estoques, imóveis, marcas. Mostra o tamanho da estrutura que precisa ser financiada.  →  Detalhe no bloco 2 (ESTRUTURA PATRIMONIAL).", "direct": true}, {"id": "c_pl", "label": "Patrimônio Líquido", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "—", "lo": null, "hi": null, "expl": "É o que sobraria para os donos se a empresa vendesse tudo e pagasse todas as dívidas. Se for negativo, a empresa deve mais do que tem.  →  Detalhe no bloco 2 (ESTRUTURA PATRIMONIAL).", "direct": true}, {"sub": "SINTOMAS  ·  o resultado está saudável?"}, {"link": "c_cresc", "src": "cresc_rec", "question": "A empresa está vendendo mais do que no ano anterior?", "label": null}, {"link": "c_mb", "src": "mb", "question": "Sobra dinheiro depois de produzir ou comprar o que vende?", "label": null}, {"link": "c_mebitda", "src": "m_ebitda", "question": "A operação, sozinha, gera caixa de forma saudável?", "label": null}, {"link": "c_mebitda_aj", "src": "m_ebitda_aj", "question": "Se tirarmos ganhos e perdas pontuais (Outras Receitas/Despesas), a margem continua boa?", "label": null}, {"link": "c_mliq", "src": "m_liq", "question": "No fim, quanto de cada R$ 1,00 vendido vira lucro?", "label": null}, {"sub": "RESPIRAÇÃO  ·  o lucro vira caixa?"}, {"link": "c_fco", "src": "fco", "question": "A operação gerou dinheiro de verdade no ano?", "label": null}, {"link": "c_conv", "src": "conv", "question": "O resultado da operação virou caixa ou ficou preso em clientes e estoque?", "label": null}, {"link": "c_fcl", "src": "fcl", "question": "Depois de investir, sobrou caixa?", "label": null}, {"id": "c_dcaixa", "label": "Variação Líquida de Caixa", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "O caixa da empresa aumentou ou diminuiu no ano? Vem direto da DFC. Queda isolada não é problema se foi para investir, mas queda com FCO fraco é sinal de alerta.  →  Aprofunde no bloco 9 (GERAÇÃO DE CAIXA (DFC)).", "direct": true}, {"sub": "PRESSÃO ARTERIAL  ·  consegue pagar o que deve?"}, {"link": "c_lc", "src": "lc", "question": "Tem dinheiro e valores a receber de curto prazo para cobrir o que vence logo?", "label": "Liquidez Corrente"}, {"link": "c_tes", "src": "tes", "question": "O dia a dia está sendo bancado com recursos de longo prazo (positivo) ou com dívida de curto prazo (negativo)?", "label": null}, {"link": "c_dlebitda", "src": "dl_ebitda", "question": "Em quantos anos de geração de caixa operacional a dívida líquida seria quitada?", "label": null}, {"link": "c_cj", "src": "cj_ebit", "question": "O lucro da operação cobre os juros com folga?", "label": null}, {"link": "c_endiv", "src": "endiv", "question": "Que parte do ativo é financiada por terceiros? (veja também o bloco 2: quanto desse dinheiro cobra juros)", "label": null}, {"sub": "RETORNO  ·  o dono está sendo bem remunerado?"}, {"link": "c_roe", "src": "roe", "question": "Quanto os donos ganham sobre o dinheiro deles?", "label": null}, {"link": "c_roic", "src": "roic", "question": "Quanto o negócio rende sobre o capital que o financia?", "label": null}, {"sub": "DIAGNÓSTICO  ·  resumo"}, {"link": "c_fleuriet", "src": "fleuriet", "question": "Em qual \"tipo\" de saúde financeira a empresa se encaixa? (I excelente · II sólida · III insatisfatória · IV péssima · V muito ruim · VI alto risco)", "label": null}]}, {"id": "estrutura", "num": 2, "title": "ESTRUTURA PATRIMONIAL", "question": "O que a empresa tem e como se financia?", "items": [{"sub": "O QUE A EMPRESA TEM  ·  ativo, em valor"}, {"id": "ac", "label": "Ativo Circulante", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "É o que a empresa tem e vai virar dinheiro em até 12 meses: caixa, contas a receber, estoques."}, {"id": "rlp", "label": "Realizável a Longo Prazo e Outros", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "São valores a receber depois de 12 meses e outros itens não circulantes. Somado ao Permanente, forma o Ativo Não Circulante."}, {"id": "perm", "label": "Permanente (Investimentos + Imobilizado + Intangível)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "É o que a empresa usa para operar por muitos anos: investimentos, imobilizado e intangível (nos clubes, inclui os direitos de atletas)."}, {"sub": "O QUE A EMPRESA TEM  ·  ativo, em % do total"}, {"id": "ac_pct", "label": "Ativo Circulante / Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do ativo está em itens de giro rápido. Alto indica estrutura leve e flexível; baixo indica muito dinheiro preso em ativos de longo prazo."}, {"id": "rlp_pct", "label": "Realizável a Longo Prazo e Outros / Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do ativo só será recebido depois de 12 meses."}, {"id": "perm_pct", "label": "Permanente / Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do ativo é estrutura fixa (imóveis, equipamentos, marcas, direitos). Alto indica negócio pesado, que precisa de capital de longo prazo."}, {"sub": "COMO A EMPRESA SE FINANCIA  ·  passivo e PL, em valor"}, {"id": "pc", "label": "Passivo Circulante", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "São as dívidas e obrigações que vencem em até 12 meses."}, {"id": "pnc", "label": "Passivo não Circulante", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "São as dívidas e obrigações que vencem depois de 12 meses."}, {"id": "pl_abs", "label": "Capital Próprio (Patrimônio Líquido)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "—", "lo": null, "hi": null, "expl": "É o capital dos donos: o que eles colocaram mais os lucros que ficaram na empresa."}, {"sub": "COMO A EMPRESA SE FINANCIA  ·  em % do total (passivo + PL)"}, {"id": "pc_pct", "label": "Passivo Circulante / Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do financiamento total vence logo. Alto pede caixa no curto prazo (compare com a liquidez)."}, {"id": "pnc_pct", "label": "Passivo não Circulante / Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do financiamento total tem prazo mais longo."}, {"id": "pl_pct", "label": "Capital Próprio / Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "Quanto do ativo foi pago com dinheiro dos donos. O resto é de terceiros."}, {"id": "terc", "label": "Capital de Terceiros / Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende da qualidade (linhas abaixo)", "lo": null, "hi": null, "expl": "Quanto do ativo é financiado por terceiros (fornecedores, bancos, governo, clientes). Não é bom nem ruim por si só: o que importa é se esse dinheiro cobra juros ou não e quando vence (veja as linhas abaixo). Terceiros sem juros alavancam o retorno do dono; terceiros com juros aumentam o risco."}, {"id": "oner_pct", "label": "Passivo Oneroso (com juros) / Total", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "quanto menor, melhor", "lo": null, "hi": null, "expl": "Parte do financiamento que cobra juros: empréstimos, financiamentos, debêntures e arrendamentos (é a Dívida Bruta). Obs.: parcelamentos de tributos e de clubes (ex.: PROFUT) podem ter encargos; se quiser tratá-los como dívida, lance-os em Empréstimos."}, {"id": "naoner_pct", "label": "Passivo não Oneroso (sem juros) / Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende do setor", "lo": null, "hi": null, "expl": "Parte que financia a empresa sem juros explícitos: fornecedores, salários e impostos a pagar, adiantamentos de clientes. É o capital de terceiros \"barato\", mas exige manter os pagamentos em dia."}, {"id": "oner_terc", "label": "Passivo Oneroso / Capital de Terceiros", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "quanto menor, melhor", "lo": null, "hi": null, "expl": "Dos recursos de terceiros, quanto cobra juros. Quanto menor, melhor a qualidade do endividamento."}]}, {"id": "receita", "num": 3, "title": "ANÁLISE EM RELAÇÃO À RECEITA", "question": "Quanto de cada R$ 1,00 vendido sobra em cada etapa do resultado?", "items": [{"id": "cmv", "label": "Custo da Mercadoria Vendida (CMV)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 70%", "lo": null, "hi": 0.7, "expl": "É quanto da receita é gasto para produzir ou comprar o que foi vendido. De cada R$ 1,00 vendido, é a parte que fica com o custo do produto."}, {"id": "mb", "label": "Margem Bruta", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 30%", "lo": 0.3, "hi": null, "expl": "É quanto sobra de cada R$ 1,00 vendido depois de pagar o custo do produto. É o que sobra para cobrir o resto da empresa."}, {"id": "sga", "label": "Total SG&A", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "de 15% a 30%", "lo": null, "hi": 0.3, "expl": "É o custo de vender e de manter a empresa funcionando, fora a produção. Mostra o peso da estrutura sobre a receita."}, {"id": "dv", "label": "Despesas com Vendas (S)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "de 5% a 15%", "lo": null, "hi": 0.15, "expl": "É quanto a empresa gasta para conseguir vender, como comissões, marketing e frete."}, {"id": "ga", "label": "Despesas Administrativas (G&A)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 10%", "lo": null, "hi": 0.1, "expl": "É o custo de manter a empresa de pé, como escritório, salários da gestão e serviços de apoio."}, {"id": "m_ebitda", "label": "Margem EBITDA", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 15%", "lo": 0.15, "hi": null, "expl": "É quanto a operação gera de caixa para cada R$ 1,00 vendido, antes de juros, impostos e desgaste dos ativos."}, {"id": "depac", "label": "Depreciação Acumulada/Imobilizado Bruto", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "de 30% a 60%", "lo": 0.3, "hi": 0.6, "expl": "É a parcela do imobilizado que já foi consumida pelo uso. Perto de 0% o parque é novo; acima de 70% está perto de precisar de reposição."}, {"id": "dep_rec", "label": "Depreciação/Receita", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "de 2% a 5%", "lo": 0.02, "hi": 0.05, "expl": "É o peso do desgaste dos ativos sobre a receita. Mostra se o negócio exige muito investimento em estrutura."}, {"id": "m_ebit", "label": "Margem EBIT", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 10%", "lo": 0.1, "hi": null, "expl": "É quanto sobra da operação para cada R$ 1,00 vendido, já descontando o desgaste dos ativos. É o lucro da atividade principal."}, {"id": "df_rec", "label": "Despesas Financeiras/Receita", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 5%", "lo": null, "hi": 0.05, "expl": "É quanto da receita vai embora em juros de dívidas."}, {"id": "m_lair", "label": "Margem LAIR", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 8%", "lo": 0.08, "hi": null, "expl": "É o que sobra para cada R$ 1,00 vendido depois dos juros, mas antes do imposto de renda."}, {"id": "m_liq", "label": "Margem Líquida", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "de 5% a 15%", "lo": 0.05, "hi": null, "expl": "É o lucro final que fica para cada R$ 1,00 vendido, depois de todos os custos, juros e impostos."}]}, {"id": "cresc", "num": 4, "title": "CRESCIMENTO", "question": "Está crescendo, e o crescimento chega ao lucro e ao caixa?", "items": [{"id": "cresc_rec", "label": "Crescimento da Receita Líquida", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima da inflação (≈ 5%)", "lo": 0.05, "hi": null, "expl": "Quanto a receita cresceu em relação ao ano anterior. Só existe para o último ano, pois precisa de dois anos de dados."}, {"id": "cresc_ebitda", "label": "Crescimento do EBITDA", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima do crescimento da receita", "lo": {"ref": "cresc_rec"}, "hi": null, "expl": "Quanto a geração operacional de caixa cresceu. Se crescer mais que a receita, a empresa está ganhando eficiência."}, {"id": "cresc_ll", "label": "Crescimento do Lucro Líquido", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima do crescimento da receita", "lo": {"ref": "cresc_rec"}, "hi": null, "expl": "Quanto o lucro líquido cresceu em relação ao ano anterior. Se o lucro do ano anterior foi zero ou negativo, o percentual não faz sentido e aparece n/a."}, {"id": "cresc_fco", "label": "Crescimento do FCO", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 0%", "lo": 0, "hi": null, "expl": "Quanto o caixa gerado pela operação cresceu em relação ao ano anterior."}, {"id": "cresc_ativo", "label": "Crescimento do Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "em linha com a receita", "lo": null, "hi": null, "expl": "Quanto o ativo total cresceu. Se cresce bem mais que a receita, a empresa precisa de cada vez mais investimento para vender o mesmo."}]}, {"id": "qualidade", "num": 5, "title": "QUALIDADE DO RESULTADO", "question": "O lucro é recorrente ou depende de itens pontuais?", "items": [{"id": "outrec", "label": "Outras Receitas/Receita Líquida", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 10%", "lo": null, "hi": 0.1, "expl": "Quanto do resultado depende de itens fora da operação principal. Nos clubes, costuma ser a venda de atletas."}, {"id": "resfin", "label": "Resultado Financeiro Líquido/Receita Líquida", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de -3%", "lo": -0.03, "hi": null, "expl": "Se o resultado financeiro ajuda ou destrói a margem. Negativo é mais juros pagos do que ganhos com aplicações."}, {"id": "adiant", "label": "Adiantamentos/Receita Líquida", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 10%", "lo": null, "hi": 0.1, "expl": "Quanto da receita já foi recebido antes. Alto significa que o caixa de hoje é do futuro."}, {"id": "ebitda_aj", "label": "EBITDA sem Outras Receitas/Despesas", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "próximo do EBITDA", "lo": null, "hi": null, "expl": "É o EBITDA sem somar as Outras Receitas e sem subtrair as Outras Despesas. Mostra o que a operação principal gera, sem ganhos ou perdas pontuais (venda de imóvel, venda de atleta, causas judiciais)."}, {"id": "m_ebitda_aj", "label": "Margem EBITDA sem Outras Receitas/Despesas", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 15%", "lo": 0.15, "hi": null, "expl": "Mesma conta em % da receita. Se ficar muito abaixo da Margem EBITDA, o resultado depende de itens pontuais."}, {"id": "aliq", "label": "Alíquota Efetiva (IR/CSLL ÷ LAIR)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "até 34% (lucro real)", "lo": null, "hi": 0.34, "expl": "É quanto do lucro antes do IR foi para impostos sobre o lucro. Perto de 34% é o normal no lucro real. Zero pode indicar isenção, prejuízo fiscal ou entidade sem fins lucrativos."}]}, {"id": "liquidez", "num": 6, "title": "LIQUIDEZ", "question": "Consegue pagar as contas de curto prazo?", "items": [{"id": "lc", "label": "Corrente", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "de 1,2 a 2,0", "lo": 1.2, "hi": null, "expl": "É quanto a empresa tem para receber ou usar no curto prazo, para cada R$ 1,00 que precisa pagar também no curto prazo."}, {"id": "ls", "label": "Seca", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 1,0", "lo": 1, "hi": null, "expl": "É a mesma conta da liquidez corrente, mas sem contar o estoque e as despesas antecipadas, que não viram dinheiro."}, {"id": "li", "label": "Imediata", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "de 0,2 a 0,5", "lo": 0.2, "hi": null, "expl": "É quanto a empresa tem em caixa hoje para cada R$ 1,00 de dívida que vence em breve."}, {"id": "lg", "label": "Geral", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 1,0", "lo": 1, "hi": null, "expl": "É a capacidade de pagar tudo o que deve, de curto e longo prazo, com o que tem para receber. Completa as outras liquidezes."}, {"id": "l_fco", "label": "Liquidez pelo Caixa Operacional (FCO/Passivo Circulante)", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 0,4x", "lo": 0.4, "hi": null, "expl": "Compara o caixa gerado pela operação com as dívidas de curto prazo. Mostra se a própria operação paga o que vence logo, sem precisar vender ativos ou captar."}]}, {"id": "giro", "num": 7, "title": "CAPITAL DE GIRO", "question": "O dia a dia da operação consome ou gera caixa?", "items": [{"id": "ccl", "label": "Capital Circulante Líquido (CCL)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É a folga (ou o buraco) de curto prazo: o que a empresa tem para receber menos o que tem para pagar nos próximos 12 meses."}, {"id": "ncg", "label": "Necessidade de Capital de Giro (NCG)", "fmt": "num", "mtype": "diff", "arrow": "↓", "ref": "menor que o CCL", "lo": null, "hi": {"ref": "ccl"}, "expl": "É o dinheiro de que a empresa precisa para tocar o dia a dia enquanto espera receber dos clientes."}, {"id": "tes", "label": "Saldo da Tesouraria", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É a sobra (ou falta) de dinheiro depois de a empresa financiar o dia a dia. Se for negativo, ela está se financiando com dívida de curto prazo."}, {"id": "ncg_dias", "label": "NCG em dias de Receita", "fmt": "dias", "mtype": "diff", "arrow": "↓", "ref": "até 30 dias", "lo": null, "hi": 30, "expl": "É quantos dias de venda a empresa precisa financiar para manter o negócio rodando."}, {"id": "ccl_rec", "label": "CCL/Receita", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 0%", "lo": 0, "hi": null, "expl": "É a folga de curto prazo medida em vendas. Negativo significa que a empresa deve mais no curto prazo do que tem para receber."}, {"id": "fleuriet", "label": "Classificação Fleuriet (CCL, NCG e Tesouraria)", "fmt": "text", "mtype": "text", "arrow": "–", "ref": "Tipo I ou II", "lo": null, "hi": null, "expl": "Junta CCL, NCG e Tesouraria numa nota pelo modelo Fleuriet: I excelente · II sólida · III insatisfatória · IV péssima · V muito ruim · VI alto risco. A partir do Tipo III a empresa está se financiando com dívida de curto prazo (Tipo VI: o caixa sobra porque a operação é financiada pelos fornecedores e clientes, mas o CCL é negativo).", "special": "fleuriet"}, {"id": "ncg_inc", "label": "NCG Incremental / Variação da Receita", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 10%", "lo": null, "hi": 0.1, "expl": "Para cada R$ 1,00 de venda a mais, quanto de capital de giro adicional foi preciso. Alto significa que o crescimento está sugando caixa (clientes demorando a pagar ou estoque inchando). Só existe com receita crescendo."}]}, {"id": "ciclo", "num": 8, "title": "CICLO FINANCEIRO (DIAS)", "question": "Quantos dias o dinheiro fica preso entre pagar e receber?", "items": [{"id": "pme", "label": "Prazo Médio de Estoque (PME)", "fmt": "dias", "mtype": "diff", "arrow": "↓", "ref": "de 30 a 60 dias", "lo": null, "hi": 60, "expl": "É quantos dias, em média, o produto fica parado no estoque antes de ser vendido."}, {"id": "pmr", "label": "Prazo Médio de Recebimento (PMR)", "fmt": "dias", "mtype": "diff", "arrow": "↓", "ref": "de 30 a 45 dias", "lo": null, "hi": 45, "expl": "É quantos dias a empresa leva para receber depois de vender."}, {"id": "cop", "label": "Ciclo Operacional (PME + PMR)", "fmt": "dias", "mtype": "diff", "arrow": "↓", "ref": "até 90 dias", "lo": null, "hi": 90, "expl": "É o tempo total entre comprar ou produzir e receber o dinheiro da venda."}, {"id": "pmp", "label": "Prazo Médio de Pagamento (PMP)", "fmt": "dias", "mtype": "diff", "arrow": "↑", "ref": "de 30 a 60 dias", "lo": 30, "hi": null, "expl": "É quantos dias a empresa leva para pagar seus fornecedores."}, {"id": "cfin", "label": "Ciclo Financeiro (Ciclo Operacional - PMP)", "fmt": "dias", "mtype": "diff", "arrow": "↓", "ref": "até 30 dias", "lo": null, "hi": 30, "expl": "É por quantos dias a empresa precisa bancar o negócio do próprio bolso, entre pagar o fornecedor e receber do cliente. Se for negativo, os fornecedores é que financiam a empresa."}]}, {"id": "geracao", "num": 9, "title": "GERAÇÃO DE CAIXA (DFC)", "question": "O lucro virou dinheiro de verdade? Para onde foi o caixa?", "items": [{"id": "fco", "label": "Fluxo de Caixa Operacional (FCO)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É o dinheiro que a operação gerou de verdade no ano, depois de ajustar o lucro por tudo o que não foi caixa."}, {"id": "fcl", "label": "Fluxo de Caixa Livre (FCL)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É o caixa que sobra depois de pagar os investimentos (CAPEX). É o dinheiro disponível para pagar dívida, dividendos ou formar caixa."}, {"id": "conv", "label": "Conversão de Caixa (FCO/EBITDA)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 70%", "lo": 0.7, "hi": null, "expl": "É quanto do EBITDA virou caixa de verdade. Perto de 100% a operação vira caixa; baixo significa que o dinheiro ficou preso em capital de giro."}, {"id": "qual", "label": "Qualidade do Lucro (FCO/Lucro Líquido)", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 1,0x", "lo": 1, "hi": null, "expl": "Compara o caixa gerado com o lucro contábil. Acima de 1 o lucro é de verdade; abaixo de 1 parte do lucro ainda não virou dinheiro."}, {"id": "accruals", "label": "Accruals ((Lucro Líquido − FCO) / Ativo Total)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 10%", "lo": null, "hi": 0.1, "expl": "É a parte do lucro que não virou caixa, em relação ao ativo. Positivo e alto indica lucro de baixa qualidade (reconhecido, mas não recebido). Negativo é bom sinal."}, {"id": "mfcl", "label": "Margem de Caixa Livre (FCL/Receita)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 5%", "lo": 0.05, "hi": null, "expl": "É quanto de cada R$ 1,00 vendido vira caixa livre, depois de investir."}, {"id": "cob_div", "label": "Cobertura da Dívida (FCO/Dívida Bruta)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 25%", "lo": 0.25, "hi": null, "expl": "É quanto da dívida o caixa operacional paga em um ano. Sem dívida, aparece n/a."}, {"id": "dl_fco", "label": "Dívida Líquida/FCO", "fmt": "x", "mtype": "diff", "arrow": "↓", "ref": "até 3x", "lo": null, "hi": 3, "expl": "É em quantos anos o caixa operacional pagaria a dívida líquida. É a versão em caixa do Dívida Líquida/EBITDA."}, {"id": "cob_capex", "label": "Cobertura do CAPEX pelo FCO", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 1,0x", "lo": 1, "hi": null, "expl": "Mostra se a operação paga os próprios investimentos. Abaixo de 1 a empresa precisa de dívida, venda de ativos ou caixa antigo para investir."}, {"id": "cj_caixa", "label": "Cobertura de Juros em Caixa ((FCO antes dos juros) / Juros pagos)", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 3x", "lo": 3, "hi": null, "expl": "Quantas vezes o caixa gerado pela operação (antes de juros) cobre os juros efetivamente pagos no ano. Sem juros pagos, aparece n/a."}, {"id": "dep_fin", "label": "Dependência de Financiamento (FCF/FCO)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "negativo ou próximo de 0%", "lo": null, "hi": 0.1, "expl": "Compara o caixa vindo de financiamentos com o caixa da operação. Positivo e alto indica que a empresa depende de captar dinheiro para se manter."}, {"id": "meses", "label": "Meses de Caixa (se FCL negativo)", "fmt": "meses", "mtype": "diff", "arrow": "↑", "ref": "acima de 6 meses", "lo": 6, "hi": null, "expl": "Só aparece quando a empresa queima caixa: mostra por quantos meses o caixa atual aguenta o ritmo de queima do ano."}, {"id": "payout", "label": "Dividendos Pagos / Lucro Líquido (payout)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende da política da empresa", "lo": null, "hi": null, "expl": "Quanto do lucro foi pago em dividendos. Sem referência fixa: depende da política da empresa e do estágio de crescimento. Preocupa quando é alto e o caixa livre é negativo."}, {"id": "fcl_div", "label": "FCL após Dividendos (FCL + Dividendos)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É o caixa livre depois de pagar dividendos. Negativo quer dizer que a empresa pagou aos donos mais do que gerou, e precisou de dívida ou de caixa antigo para isso."}]}, {"id": "divida", "num": 10, "title": "ENDIVIDAMENTO E COBERTURA", "question": "A dívida é pesada e o resultado aguenta pagar?", "items": [{"id": "db", "label": "Dívida Bruta", "fmt": "num", "mtype": "diff", "arrow": "↓", "ref": "até 3x o EBITDA", "lo": null, "hi": {"mul": 3, "stmt": "ebitda"}, "expl": "É tudo o que a empresa deve a bancos e credores."}, {"id": "dl", "label": "Dívida Líquida", "fmt": "num", "mtype": "diff", "arrow": "↓", "ref": "menor que 0", "lo": null, "hi": null, "expl": "É o que sobra da dívida depois de usar o caixa para pagá-la. Se o número for negativo, a empresa tem mais caixa do que dívida."}, {"id": "dl_ebitda", "label": "Dívida Líquida/EBITDA", "fmt": "x", "mtype": "diff", "arrow": "↓", "ref": "até 2x", "lo": null, "hi": 2, "expl": "É em quantos anos a empresa quitaria suas dívidas usando só o que a operação gera. Negativo significa que sobra caixa depois de pagar a dívida."}, {"id": "db_ebitda", "label": "Dívida Bruta/EBITDA", "fmt": "x", "mtype": "diff", "arrow": "↓", "ref": "até 3x", "lo": null, "hi": 3, "expl": "Mesma conta, mas sem descontar o caixa. Útil quando o caixa é restrito ou está preso."}, {"id": "dl_pl", "label": "Dívida Líquida/PL", "fmt": "x", "mtype": "diff", "arrow": "↓", "ref": "até 1,0x", "lo": null, "hi": 1, "expl": "É o peso da dívida frente ao capital dos donos. Com PL negativo ou zero, não faz sentido."}, {"id": "cj_ebit", "label": "Cobertura de Juros (EBIT)", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 3x", "lo": 3, "hi": null, "expl": "É quantas vezes o lucro da operação cobre os juros da dívida. Abaixo de 1, a empresa não consegue nem pagar os juros."}, {"id": "cj_ebitda", "label": "Cobertura de Juros pelo EBITDA", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 4x", "lo": 4, "hi": null, "expl": "É a versão em caixa da cobertura de juros, pois o EBITDA ignora o desgaste dos ativos."}, {"id": "custo_div", "label": "Custo Médio da Dívida", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "menor que o ROCE", "lo": null, "hi": {"ref": "roce"}, "expl": "São os juros pagos por R$ 1,00 de dívida bruta. Compare com o ROCE: se o custo é maior que o retorno, a dívida destrói valor."}, {"id": "endiv", "label": "Endividamento Geral", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 60%", "lo": null, "hi": 0.6, "expl": "É quanto do ativo é financiado por terceiros. É o mesmo número de \"Capital de Terceiros / Total\" do bloco 2, repetido aqui para facilitar a leitura do bloco de dívida."}, {"id": "comp", "label": "Composição do Endividamento", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 50%", "lo": null, "hi": 0.5, "expl": "É quanto do passivo vence no curto prazo. Alto significa pressão de caixa."}, {"id": "cx_dcp", "label": "Caixa/Dívida de Curto Prazo", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "acima de 1,0x", "lo": 1, "hi": null, "expl": "Mostra se o caixa paga o que vence logo. Sem dívida de curto prazo, aparece n/a."}]}, {"id": "retorno", "num": 11, "title": "RENTABILIDADE E RETORNO (DUPONT)", "question": "Quanto a empresa rende sobre o dinheiro investido nela?", "items": [{"id": "giro", "label": "Giro do Ativo (Receita/Ativo Total)", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "de 0,8 a 1,5", "lo": 0.8, "hi": null, "expl": "É quanto a empresa vende para cada R$ 1,00 investido em ativos. Mostra se ela usa bem o que tem."}, {"id": "alav", "label": "Alavancagem (Ativo Total/PL)", "fmt": "x", "mtype": "diff", "arrow": "–", "ref": "de 1,5 a 2,5", "lo": 1.5, "hi": 2.5, "expl": "É quanto a empresa tem de ativos para cada R$ 1,00 de capital próprio. Quanto maior, mais ela depende de dinheiro de terceiros. Com PL negativo ou zero, não faz sentido."}, {"id": "roe", "label": "ROE", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 15%", "lo": 0.15, "hi": null, "expl": "É o lucro que a empresa gera para cada R$ 1,00 dos donos investidos nela. Com PL negativo ou zero, não faz sentido. Pelo DuPont: ROE = Margem Líquida × Giro do Ativo × Alavancagem. Se o ROE sobe, descubra qual das três mudou."}, {"id": "roa", "label": "ROA", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 5%", "lo": 0.05, "hi": null, "expl": "É o lucro que a empresa gera para cada R$ 1,00 aplicado em ativos, venha o dinheiro de onde vier."}, {"id": "roce", "label": "ROCE", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 15%", "lo": 0.15, "hi": null, "expl": "É o lucro da operação que a empresa gera para cada R$ 1,00 aplicado no negócio, seja dinheiro dos donos ou de credores de longo prazo."}, {"id": "roic", "label": "ROIC Simples", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 12%", "lo": 0.12, "hi": null, "expl": "É o lucro da operação sobre o capital que financia o negócio (PL mais dívida líquida). Parecido com o ROCE, mas sem contar passivos que não cobram juros. Deve superar o custo de capital."}]}, {"id": "eficiencia", "num": 12, "title": "ESTRUTURA E EFICIÊNCIA", "question": "O ativo fixo está bem financiado e bem usado?", "items": [{"id": "imob_pl", "label": "Imobilização do PL", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 100%", "lo": null, "hi": 1, "expl": "É quanto do capital próprio está preso em ativo fixo e intangível. Acima de 100% quer dizer que parte dele é financiada por dívida."}, {"id": "giro_imob", "label": "Giro do Imobilizado", "fmt": "x", "mtype": "diff", "arrow": "↑", "ref": "depende do setor", "lo": null, "hi": null, "expl": "É a receita gerada para cada R$ 1,00 de imobilizado. Mostra se a estrutura física está sendo bem aproveitada."}, {"id": "cx_ativo", "label": "Caixa/Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "de 5% a 15%", "lo": 0.05, "hi": 0.15, "expl": "É o peso do caixa no ativo. Muito baixo deixa a empresa sem folga; muito alto pode ser dinheiro parado."}, {"id": "int_ativo", "label": "Intangível/Ativo Total", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende do setor", "lo": null, "hi": null, "expl": "É o peso dos ativos que não são físicos (marcas, contratos, direitos de atletas, software) no total do ativo."}]}, {"id": "capex", "num": 13, "title": "CAPEX", "question": "Quanto está sendo investido, e isso sustenta o crescimento?", "items": [{"id": "capex", "label": "CAPEX (Investimento Bruto)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "de 1 a 1,5x a D&A", "lo": null, "hi": null, "expl": "É o dinheiro gasto no ano em imobilizado e intangível (nos clubes, inclui a compra de atletas), tirado da DFC."}, {"id": "inv_liq", "label": "Investimento Líquido (CAPEX - Vendas de Ativos)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "acompanhar a tendência", "lo": null, "hi": null, "expl": "É o que a empresa realmente investiu depois de descontar o que recebeu vendendo ativos."}, {"id": "capex_rec", "label": "CAPEX/Receita", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "de 3% a 10%", "lo": 0.03, "hi": 0.1, "expl": "É o peso do investimento nas vendas. Varia muito conforme o setor."}, {"id": "capex_da", "label": "CAPEX/D&A", "fmt": "x", "mtype": "diff", "arrow": "–", "ref": "de 1,0x a 1,5x", "lo": 1, "hi": 1.5, "expl": "Acima de 1 a empresa está crescendo a base de ativos. Perto de 1 só repõe o desgaste. Abaixo de 1 os ativos estão envelhecendo."}, {"id": "ebitda_capex", "label": "EBITDA − CAPEX", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É o que a operação gera depois de pagar o investimento do ano (visão simples, antes de juros, impostos e capital de giro). Negativo: investe mais do que a operação gera."}, {"id": "capex_exp", "label": "CAPEX de Expansão Estimado (CAPEX − D&A)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "positivo = crescendo", "lo": null, "hi": null, "expl": "É o CAPEX que passou do desgaste do ano (D&A). Positivo: a empresa está aumentando a base de ativos. Negativo: está deixando a base envelhecer."}]}, {"id": "opex", "num": 14, "title": "OPEX", "question": "Quanto a operação gasta para funcionar?", "items": [{"id": "opex", "label": "OPEX Total", "fmt": "num", "mtype": "diff", "arrow": "↓", "ref": "abaixo da receita líquida", "lo": null, "hi": {"stmt": "rl"}, "expl": "É tudo o que a empresa gasta para operar no ano: custo do produto, vendas, administração e outras despesas."}, {"id": "opex_rec", "label": "OPEX/Receita", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 90%", "lo": null, "hi": 0.9, "expl": "É quanto de cada R$ 1,00 vendido é consumido pela operação. É o complemento da margem de lucro operacional."}, {"id": "opex_cx", "label": "OPEX de Caixa/Receita", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "até 85%", "lo": null, "hi": 0.85, "expl": "Mesma conta, mas sem o desgaste dos ativos, que não sai do caixa. Mede o gasto de caixa da operação."}, {"id": "cx_dias_opex", "label": "Caixa em Dias de OPEX", "fmt": "dias", "mtype": "diff", "arrow": "↑", "ref": "acima de 30 dias", "lo": 30, "hi": null, "expl": "É por quantos dias a empresa consegue pagar a operação só com o caixa que tem, sem receber nada."}]}, {"id": "integr", "num": 15, "title": "INTEGRAÇÃO DAS 3 DEMONSTRAÇÕES", "question": "DRE, balanço e DFC contam a mesma história?", "items": [{"id": "retencao", "label": "Retenção de Lucros (1 − payout)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende da política da empresa", "lo": null, "hi": null, "expl": "Parte do lucro que ficou na empresa. 100% significa nenhum dividendo pago no ano."}, {"id": "sgr", "label": "Crescimento Sustentável (ROE × retenção)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima do crescimento da receita", "lo": {"ref": "cresc_rec"}, "hi": null, "expl": "É o quanto a empresa consegue crescer só com o lucro que retém, sem pegar mais dívida nem aporte. Se a receita cresce acima disso, o crescimento está sendo financiado por terceiros."}, {"id": "outros_pl", "label": "Outros Movimentos no PL (ΔPL − Lucro + Dividendos Pagos)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "perto de 0", "lo": null, "hi": null, "expl": "Variação do PL que não veio do lucro nem dos dividendos pagos: ajustes de valor, aportes, dividendos ainda não pagos. Se for grande, o patrimônio mudou por motivos que a DRE não conta."}]}, {"id": "capital", "num": 16, "title": "CUSTO DE CAPITAL E CRIAÇÃO DE VALOR", "question": "O retorno supera o custo do dinheiro? A empresa cria valor?", "items": [{"sub": "PREMISSAS  ·  células azuis podem ser alteradas (a 2ª coluna copia a 1ª)"}, {"id": "p_tax", "label": "Alíquota de IR/CSLL (premissa)", "fmt": "pct", "mtype": "none", "arrow": "–", "ref": "34% (lucro real)", "lo": null, "hi": null, "expl": "Usada para calcular o custo da dívida após IR e o NOPAT. Use 0% se a entidade for imune ou isenta (ex.: clubes associativos sem IR).", "input": true, "default": 0.34}, {"id": "p_rf", "label": "Taxa Livre de Risco – Selic (premissa)", "fmt": "pct2", "mtype": "none", "arrow": "–", "ref": "Selic ou NTN-B longa", "lo": null, "hi": null, "expl": "Retorno de um investimento sem risco. Exemplo: Selic de 13,75% a.a. (valor de referência noticiado após o Copom de set/2026; confirme no site do Banco Central). Atualize sempre; alternativa é a taxa da NTN-B longa.", "input": true, "default": 0.1375}, {"id": "p_beta", "label": "Beta (premissa)", "fmt": "x", "mtype": "none", "arrow": "–", "ref": "1,0 se não houver dado", "lo": null, "hi": null, "expl": "Mede o quanto o negócio oscila mais que o mercado. 1,0 = igual ao mercado. Sem dado de mercado, use 1,0 ou o beta de empresas parecidas.", "input": true, "default": 1}, {"id": "p_erp", "label": "Prêmio de Risco de Mercado (premissa)", "fmt": "pct2", "mtype": "none", "arrow": "–", "ref": "≈ 5% a 7%", "lo": null, "hi": null, "expl": "Retorno extra que o investidor exige por escolher ações em vez de renda fixa. Exemplo de 5,5%; ajuste conforme a sua fonte (ex.: Damodaran).", "input": true, "default": 0.055}, {"sub": "CUSTO DE CADA FONTE E CUSTO MÉDIO PONDERADO"}, {"id": "ke", "label": "Custo do Capital Próprio – Ke (CAPM)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "maior que o custo da dívida", "lo": null, "hi": null, "expl": "É o retorno mínimo que o dono exige para deixar o dinheiro na empresa: taxa livre de risco + beta × prêmio de risco. Não sai das demonstrações: depende das premissas de mercado acima, então é uma estimativa."}, {"id": "kd", "label": "Custo da Dívida antes do IR – Kd", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "menor que o ROIC", "lo": null, "hi": null, "expl": "É o \"Custo Médio da Dívida\" do bloco 10: despesas financeiras ÷ dívida bruta. É aproximado, pois as despesas financeiras podem incluir variação cambial, multas e outros itens, e a dívida é a do fim do ano."}, {"id": "kd_at", "label": "Custo da Dívida após IR – Kd × (1 − alíquota)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "menor que o Ke", "lo": null, "hi": null, "expl": "Os juros reduzem o IR a pagar, então o custo líquido da dívida é menor que o Kd."}, {"id": "wd", "label": "Peso da Dívida – D/(D+E)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende do setor", "lo": null, "hi": null, "expl": "Quanto do capital que financia o negócio é dívida com juros, a valores contábeis (dívida bruta e PL). Em análise de mercado usa-se o valor de mercado, que não temos aqui."}, {"id": "we", "label": "Peso do Capital Próprio – E/(D+E)", "fmt": "pct", "mtype": "pp", "arrow": "–", "ref": "depende do setor", "lo": null, "hi": null, "expl": "É o complemento do peso da dívida."}, {"id": "wacc", "label": "WACC (custo médio ponderado de capital)", "fmt": "pct", "mtype": "pp", "arrow": "↓", "ref": "menor que o ROIC", "lo": null, "hi": null, "expl": "É o custo médio de todo o dinheiro que financia a empresa (dono + credores). Sem dívida com juros, o WACC é igual ao Ke. É o piso que o ROIC precisa superar para a empresa criar valor."}, {"sub": "CRIAÇÃO DE VALOR"}, {"id": "spread_roe", "label": "Spread do Acionista (ROE − Ke)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "Se o ROE fica acima do que o dono exige (Ke), a empresa remunera o capital dele acima do custo. Negativo: o dono ganharia mais aplicando em outro lugar."}, {"id": "nopat", "label": "NOPAT (EBIT após IR)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "—", "lo": null, "hi": null, "expl": "É o lucro da operação depois do imposto, como se a empresa não tivesse dívida. Com EBIT negativo não há imposto a descontar."}, {"id": "capinv", "label": "Capital Investido (PL + Dívida Líquida)", "fmt": "num", "mtype": "diff", "arrow": "–", "ref": "—", "lo": null, "hi": null, "expl": "É o dinheiro que dono e credores têm aplicado no negócio, descontado o caixa. Mesma base do ROIC Simples."}, {"id": "roic_at", "label": "ROIC após IR (NOPAT / Capital Investido)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima do WACC", "lo": {"ref": "wacc"}, "hi": null, "expl": "É o retorno da operação depois do IR sobre o capital investido. Compare com o WACC: acima dele a empresa cria valor, abaixo destrói."}, {"id": "spread", "label": "Spread do Capital (ROIC − WACC)", "fmt": "pct", "mtype": "pp", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É a diferença entre o que o negócio rende e o que custa o dinheiro que o financia. Positivo: cria valor. Negativo: destrói valor mesmo que dê lucro contábil."}, {"id": "eva", "label": "EVA (NOPAT − WACC × Capital Investido)", "fmt": "num", "mtype": "diff", "arrow": "↑", "ref": "acima de 0", "lo": 0, "hi": null, "expl": "É o spread em valor: quanto a empresa ganhou além do custo do capital, na unidade da demonstração. Positivo é valor criado no ano."}]}], "checkLinks": {"c_cresc": {"src": "cresc_rec", "question": "A empresa está vendendo mais do que no ano anterior?", "label": null}, "c_mb": {"src": "mb", "question": "Sobra dinheiro depois de produzir ou comprar o que vende?", "label": null}, "c_mebitda": {"src": "m_ebitda", "question": "A operação, sozinha, gera caixa de forma saudável?", "label": null}, "c_mebitda_aj": {"src": "m_ebitda_aj", "question": "Se tirarmos ganhos e perdas pontuais (Outras Receitas/Despesas), a margem continua boa?", "label": null}, "c_mliq": {"src": "m_liq", "question": "No fim, quanto de cada R$ 1,00 vendido vira lucro?", "label": null}, "c_fco": {"src": "fco", "question": "A operação gerou dinheiro de verdade no ano?", "label": null}, "c_conv": {"src": "conv", "question": "O resultado da operação virou caixa ou ficou preso em clientes e estoque?", "label": null}, "c_fcl": {"src": "fcl", "question": "Depois de investir, sobrou caixa?", "label": null}, "c_lc": {"src": "lc", "question": "Tem dinheiro e valores a receber de curto prazo para cobrir o que vence logo?", "label": "Liquidez Corrente"}, "c_tes": {"src": "tes", "question": "O dia a dia está sendo bancado com recursos de longo prazo (positivo) ou com dívida de curto prazo (negativo)?", "label": null}, "c_dlebitda": {"src": "dl_ebitda", "question": "Em quantos anos de geração de caixa operacional a dívida líquida seria quitada?", "label": null}, "c_cj": {"src": "cj_ebit", "question": "O lucro da operação cobre os juros com folga?", "label": null}, "c_endiv": {"src": "endiv", "question": "Que parte do ativo é financiada por terceiros? (veja também o bloco 2: quanto desse dinheiro cobra juros)", "label": null}, "c_roe": {"src": "roe", "question": "Quanto os donos ganham sobre o dinheiro deles?", "label": null}, "c_roic": {"src": "roic", "question": "Quanto o negócio rende sobre o capital que o financia?", "label": null}, "c_fleuriet": {"src": "fleuriet", "question": "Em qual \"tipo\" de saúde financeira a empresa se encaixa? (I excelente · II sólida · III insatisfatória · IV péssima · V muito ruim · VI alto risco)", "label": null}}};
+const EXAMPLE = {"rb": [1142151, 1393755], "imp": [0, 0], "dev": [0, 0], "cmv": [982446, 1171697], "dv": [37759, 37763], "ga": [113121, 121492], "od": [3465, 0], "orr": [39389, 250657], "da": [224272, 256537], "df": [59474, 28534], "rf": [13991, 50739], "ir": [0, 0], "caixa": [70557, 143941], "cxr": [41662, 51140], "instr": [0, 3086], "cr": [185416, 348380], "est": [1753, 1799], "imprec": [0, 0], "antec": [8487, 5274], "avenda": [81377, 54220], "ocirc": [13995, 5346], "crlp": [36066, 107905], "invest": [2572, 6390], "imobb": [427509, 440614], "depac": [0, 0], "intang": [605405, 800619], "oncirc": [56242, 23634], "forn": [282783, 334711], "emp": [0, 0], "arr": [0, 0], "obrig": [85014, 135924], "adiant": [136988, 121697], "divpag": [0, 0], "opc": [0, 0], "fornlp": [160530, 226369], "emplp": [0, 0], "arrlp": [0, 0], "obriglp": [151799, 147301], "opnc": [95467, 72221], "capsoc": [0, 0], "reservas": [0, 0], "resacum": [444124, 808998], "ajustes": [174336, 145127], "outaj": [3067, 173958], "vcr": [-5798, -226551], "vest": [2027, -46], "vforn": [128987, -10263], "voutros": [61456, 75488], "jurosfco": [-4762, -5525], "irpago": [0, 0], "capex": [-566219, -536018], "vendaimob": [21027, 28375], "aplicfin": [-13589, -9478], "outinv": [-5866, 0], "capt": [0, 0], "pagemp": [0, 0], "jurosfin": [0, 0], "pagarr": [0, 0], "divid": [0, 0], "aportes": [-7798, -8758], "cambial": [0, 0], "cxini": [234487, 0]};
+
+/* ------------------------------------------------------------------ utilidades */
+const NA = 'n/a';
+const isN = x => typeof x === 'number' && isFinite(x);
+const dvz = (a, b) => (isN(a) && isN(b) && b !== 0) ? a / b : NA;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const nf0 = new Intl.NumberFormat('pt-BR', {maximumFractionDigits: 0});
+const nf1 = new Intl.NumberFormat('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+const nf2 = new Intl.NumberFormat('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const nfIn = new Intl.NumberFormat('pt-BR', {maximumFractionDigits: 2});
+const sgn = (n, s) => (n > 0 ? '+' : n < 0 ? '−' : '') + s;
+function parseBR(t){
+  t = String(t).trim().replace(/R\$|%|\s/g, '').replace('−', '-');
+  if (t === '' || t === '-') return 0;
+  let neg = false;
+  if (/^\(.*\)$/.test(t)) { neg = true; t = t.slice(1, -1); }
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+  const n = Number(t);
+  if (!isFinite(n)) return NaN;
+  return neg ? -n : n;
+}
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
+
+/* ------------------------------------------------------------------ estado */
+const KEY = 'fluxe.v1';
+const state = { meta: {company: '', unit: 'R$ mil', y0: '2024', y1: '2025'}, v: {}, prem: {} };
+META.blocks.forEach(b => b.items.forEach(i => { if (i.input) state.prem[i.id] = i.default; }));
+const getV = (k, y) => (state.v[k] && isN(state.v[k][y])) ? state.v[k][y] : 0;
+function setV(k, y, n){ if (!state.v[k]) state.v[k] = [0, 0]; state.v[k][y] = n; }
+let saveT;
+function persist(){ clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }, 300); }
+function restore(){
+  try {
+    const raw = localStorage.getItem(KEY); if (!raw) return;
+    const o = JSON.parse(raw); applyState(o);
+  } catch (e) {}
+}
+function applyState(o){
+  if (o.meta) Object.assign(state.meta, o.meta);
+  state.v = {}; if (o.v) for (const k in o.v) state.v[k] = [Number(o.v[k][0]) || 0, Number(o.v[k][1]) || 0];
+  if (o.prem) for (const k in o.prem) if (k in state.prem && isN(Number(o.prem[k]))) state.prem[k] = Number(o.prem[k]);
+}
+
+/* ------------------------------------------------------------------ demonstrativos: definição das linhas */
+const DRE_ROWS = [
+  {k:'rb', l:'Receita Bruta', h:'Total vendido antes de impostos e devoluções.', hl:1},
+  {k:'imp', l:'Impostos sobre as Vendas', h:'Positivo. ICMS, PIS, COFINS, ISS. Se a receita já está líquida, deixe 0.'},
+  {k:'dev', l:'Devoluções', h:'Positivo. Inclui abatimentos e cancelamentos.'},
+  {c:'rl', l:'RECEITA LÍQUIDA', f:s => s.rl},
+  {k:'cmv', l:'CMV / CPV / CSP', h:'Custo do que foi vendido (mercadoria, produto ou serviço). Positivo.'},
+  {c:'lb', l:'LUCRO BRUTO', f:s => s.lb},
+  {k:'dv', l:'Despesas com Vendas', h:'Comerciais, marketing, comissões. Positivo.'},
+  {k:'ga', l:'Despesas Administrativas', h:'Gerais e administrativas. Positivo.'},
+  {k:'od', l:'Outras Despesas', h:'Itens fora da operação principal (perdas, baixas, provisões). Positivo.'},
+  {k:'orr', l:'Outras Receitas', h:'Ganhos pontuais ou fora da operação (venda de imobilizado, de atletas, reversões). Positivo.'},
+  {k:'da', l:'Depreciação e Amortização', h:'Já está dentro dos custos e despesas acima. Informe aqui (está na DFC) para somar de volta ao EBITDA. Positivo.'},
+  {c:'ebitda', l:'EBITDA', f:s => s.ebitda, h:'Lucro Bruto − Vendas − Administrativas − Outras Despesas + Outras Receitas + D&A'},
+  {c:'ebit', l:'EBIT', f:s => s.ebit, h:'EBITDA − D&A'},
+  {k:'df', l:'Despesas Financeiras', h:'Juros, variação cambial passiva, encargos. Positivo.'},
+  {k:'rf', l:'Receitas Financeiras', h:'Rendimentos de aplicações, juros ativos. Positivo.'},
+  {c:'lair', l:'LAIR', f:s => s.lair},
+  {k:'ir', l:'IR / CSLL', h:'Total do período (corrente + diferido). Positivo se despesa; negativo se crédito.'},
+  {c:'ll', l:'LUCRO LÍQUIDO', f:s => s.ll, hl:1}
+];
+const BP_ROWS = [
+  {sec:'Ativo circulante'},
+  {k:'caixa', l:'Caixa e Equivalentes', h:'Dinheiro e aplicações de liquidez imediata.'},
+  {k:'cxr', l:'Caixa Restrito', h:'Depósitos e aplicações com uso restrito (garantias, judiciais).'},
+  {k:'instr', l:'Instrumentos Financeiros', h:'Aplicações financeiras de curto prazo e derivativos.'},
+  {k:'cr', l:'Contas a Receber', h:'Clientes a receber em até 12 meses.'},
+  {k:'est', l:'Estoques'},
+  {k:'imprec', l:'Impostos a Recuperar'},
+  {k:'antec', l:'Despesas Antecipadas'},
+  {k:'avenda', l:'Ativos Mantidos para Venda'},
+  {k:'ocirc', l:'Outros Circulantes'},
+  {c:'ac', l:'ATIVO CIRCULANTE', f:s => s.ac},
+  {sec:'Ativo não circulante'},
+  {k:'crlp', l:'Contas a Receber LP', h:'Realizável a longo prazo.'},
+  {k:'invest', l:'Investimentos'},
+  {k:'imobb', l:'Imobilizado Bruto', h:'Se só tiver o líquido, informe o líquido aqui e 0 na depreciação acumulada.'},
+  {k:'depac', l:'Depreciação Acumulada', h:'Informe positivo: será subtraída do bruto.'},
+  {c:'imobl', l:'Imobilizado Líquido', f:s => s.imobl, sub:1},
+  {k:'intang', l:'Intangível', h:'Marcas, softwares, direitos (nos clubes, inclui direitos federativos de atletas).'},
+  {k:'oncirc', l:'Outros Não Circulantes'},
+  {c:'anc', l:'ATIVO NÃO CIRCULANTE', f:s => s.anc},
+  {c:'ativo', l:'TOTAL DO ATIVO', f:s => s.ativo, chk:1},
+  {sec:'Passivo circulante'},
+  {k:'forn', l:'Fornecedores CP'},
+  {k:'emp', l:'Empréstimos CP', h:'Empréstimos, financiamentos e debêntures (dívida com juros). Parcelamentos com encargos (ex.: PROFUT) podem entrar aqui, se você quiser tratá-los como dívida.'},
+  {k:'arr', l:'Arrendamentos CP', h:'Passivo de arrendamento (IFRS 16 / CPC 06).'},
+  {k:'obrig', l:'Obrigações Trabalhistas e Tributárias CP'},
+  {k:'adiant', l:'Adiantamentos de Clientes', h:'Inclui receita diferida / receita a apropriar.'},
+  {k:'divpag', l:'Dividendos a Pagar'},
+  {k:'opc', l:'Outros Circulantes'},
+  {c:'pc', l:'PASSIVO CIRCULANTE', f:s => s.pc},
+  {sec:'Passivo não circulante'},
+  {k:'fornlp', l:'Fornecedores LP'},
+  {k:'emplp', l:'Empréstimos LP'},
+  {k:'arrlp', l:'Arrendamentos LP'},
+  {k:'obriglp', l:'Obrigações Trabalhistas e Tributárias LP'},
+  {k:'opnc', l:'Outros Não Circulantes'},
+  {c:'pnc', l:'PASSIVO NÃO CIRCULANTE', f:s => s.pnc},
+  {sec:'Patrimônio líquido'},
+  {k:'capsoc', l:'Capital Social'},
+  {k:'reservas', l:'Reservas de Lucros'},
+  {k:'resacum', l:'Resultados Acumulados', h:'Pode ser negativo (prejuízos acumulados).'},
+  {k:'ajustes', l:'Ajustes de Avaliação Patrimonial e Outros'},
+  {c:'pl', l:'TOTAL DO PATRIMÔNIO LÍQUIDO', f:s => s.pl},
+  {c:'tpp', l:'TOTAL DO PASSIVO + PL', f:s => s.tpp, chk:1}
+];
+const DFC_ROWS = [
+  {sec:'Atividades operacionais (FCO)'},
+  {c:'d_ll', l:'Lucro Líquido', f:s => s.ll, h:'Vem da DRE.'},
+  {c:'d_da', l:'Depreciação e Amortização', f:s => s.da, h:'Vem da DRE.'},
+  {k:'outaj', l:'Outros Ajustes de Não Caixa', h:'Provisões, resultado de equivalência, ganho na venda de ativos (negativo), juros e variações cambiais não pagos etc.'},
+  {k:'vcr', l:'Variação de Contas a Receber', h:'Aumento do saldo = negativo (consumiu caixa).'},
+  {k:'vest', l:'Variação de Estoques', h:'Aumento do saldo = negativo.'},
+  {k:'vforn', l:'Variação de Fornecedores', h:'Aumento do saldo = positivo (financiou a operação).'},
+  {k:'voutros', l:'Variação de Outros Ativos e Passivos Operacionais', h:'Soma das demais variações de capital de giro.'},
+  {k:'jurosfco', l:'Juros Pagos (dentro do FCO)', h:'Negativo. Preencha só se a empresa classifica juros pagos nas operações.'},
+  {k:'irpago', l:'IR/CSLL Pagos', h:'Negativo.'},
+  {c:'fco', l:'FLUXO DE CAIXA OPERACIONAL (FCO)', f:s => s.fco},
+  {sec:'Atividades de investimento (FCI)'},
+  {k:'capex', l:'Aquisição de Imobilizado e Intangível (CAPEX)', h:'Negativo. Nos clubes, inclui a compra de atletas.'},
+  {k:'vendaimob', l:'Venda de Imobilizado e Intangível', h:'Positivo.'},
+  {k:'aplicfin', l:'Aplicações Financeiras e Caixa Restrito', h:'Aplicar = negativo; resgatar = positivo.'},
+  {k:'outinv', l:'Outros Investimentos', h:'Dividendos recebidos, aquisições de empresas, empréstimos concedidos etc.'},
+  {c:'fci', l:'FLUXO DE CAIXA DE INVESTIMENTOS (FCI)', f:s => s.fci},
+  {sec:'Atividades de financiamento (FCF)'},
+  {k:'capt', l:'Captação de Empréstimos', h:'Positivo.'},
+  {k:'pagemp', l:'Pagamento de Empréstimos', h:'Negativo.'},
+  {k:'jurosfin', l:'Juros Pagos (dentro do FCF)', h:'Negativo. Preencha só se a empresa classifica juros pagos no financiamento.'},
+  {k:'pagarr', l:'Pagamento de Arrendamentos', h:'Negativo.'},
+  {k:'divid', l:'Dividendos e Distribuições', h:'Negativo.'},
+  {k:'aportes', l:'Aportes de Capital e Outros', h:'Aportes = positivo; recompras e outros pagamentos = negativo.'},
+  {c:'fcf', l:'FLUXO DE CAIXA DE FINANCIAMENTO (FCF)', f:s => s.fcf},
+  {k:'cambial', l:'Efeito Cambial sobre o Caixa', h:'Para empresas com caixa em moeda estrangeira.'},
+  {c:'dcaixa', l:'VARIAÇÃO LÍQUIDA DE CAIXA', f:s => s.dcaixa},
+  {k:'cxini', l:'Caixa Inicial', h:'Informe só no ano anterior. No ano atual, é o caixa final do ano anterior (automático).', y1auto:1},
+  {c:'cxfim', l:'CAIXA FINAL', f:s => s.cxfim, chk:1}
+];
+
+/* ------------------------------------------------------------------ cálculo dos demonstrativos */
+let ST = [{}, {}];
+function calcStatements(){
+  for (const y of [0, 1]) {
+    const g = k => getV(k, y), s = {};
+    ['rb','imp','dev','cmv','dv','ga','od','orr','da','df','rf','ir','caixa','cxr','instr','cr','est','imprec','antec','avenda','ocirc','crlp','invest','imobb','depac','intang','oncirc','forn','emp','arr','obrig','adiant','divpag','opc','fornlp','emplp','arrlp','obriglp','opnc','capsoc','reservas','resacum','ajustes','outaj','vcr','vest','vforn','voutros','jurosfco','irpago','capex','vendaimob','aplicfin','outinv','capt','pagemp','jurosfin','pagarr','divid','aportes','cambial'].forEach(k => s[k] = g(k));
+    s.rl = s.rb - s.imp - s.dev;
+    s.lb = s.rl - s.cmv;
+    s.ebitda = s.lb - s.dv - s.ga - s.od + s.orr + s.da;
+    s.ebit = s.ebitda - s.da;
+    s.lair = s.ebit - s.df + s.rf;
+    s.ll = s.lair - s.ir;
+    s.ac = s.caixa + s.cxr + s.instr + s.cr + s.est + s.imprec + s.antec + s.avenda + s.ocirc;
+    s.imobl = s.imobb - s.depac;
+    s.anc = s.crlp + s.invest + s.intang + s.imobl + s.oncirc;
+    s.ativo = s.ac + s.anc;
+    s.pc = s.forn + s.emp + s.arr + s.obrig + s.adiant + s.divpag + s.opc;
+    s.pnc = s.fornlp + s.emplp + s.arrlp + s.obriglp + s.opnc;
+    s.pl = s.capsoc + s.reservas + s.resacum + s.ajustes;
+    s.tpp = s.pl + s.pnc + s.pc;
+    s.db = s.emp + s.arr + s.emplp + s.arrlp;
+    s.fco = s.ll + s.da + s.outaj + s.vcr + s.vest + s.vforn + s.voutros + s.jurosfco + s.irpago;
+    s.fci = s.capex + s.vendaimob + s.aplicfin + s.outinv;
+    s.fcf = s.capt + s.pagemp + s.jurosfin + s.pagarr + s.divid + s.aportes;
+    s.dcaixa = s.fco + s.fci + s.fcf + s.cambial;
+    ST[y] = s;
+  }
+  ST[0].cxini = getV('cxini', 0);
+  ST[0].cxfim = ST[0].cxini + ST[0].dcaixa;
+  ST[1].cxini = ST[0].cxfim;
+  ST[1].cxfim = ST[1].cxini + ST[1].dcaixa;
+  ST.forEach(s => { s.ll_dfc = s.ll; });
+}
+const TOL = 0.5;
+function checks(){
+  const bp = [0, 1].map(y => ST[y].ativo - ST[y].tpp);
+  const dfc = [0, 1].map(y => ST[y].cxfim - ST[y].caixa);
+  return {
+    bp, dfc,
+    bpOk: bp.every(d => Math.abs(d) <= TOL),
+    dfcOk: dfc.every(d => Math.abs(d) <= TOL),
+    hasBP: [0, 1].some(y => ST[y].ativo !== 0 || ST[y].tpp !== 0),
+    hasDFC: [0, 1].some(y => ST[y].dcaixa !== 0 || ST[y].cxini !== 0 || ST[y].cxfim !== 0)
+  };
+}
+const hasData = () => ST.some(s => s.rb || s.ativo || s.dcaixa);
+
+/* ------------------------------------------------------------------ indicadores: fórmulas */
+const F = {
+  c_rl: (s) => s.rl, c_ativo: (s) => s.ativo, c_pl: (s) => s.pl, c_dcaixa: (s) => s.dcaixa,
+  ac: s => s.ac,
+  rlp: s => s.crlp + s.oncirc,
+  perm: s => s.invest + s.imobl + s.intang,
+  ac_pct: s => dvz(s.ac, s.ativo),
+  rlp_pct: s => dvz(s.crlp + s.oncirc, s.ativo),
+  perm_pct: s => dvz(s.invest + s.imobl + s.intang, s.ativo),
+  pc: s => s.pc, pnc: s => s.pnc, pl_abs: s => s.pl,
+  pc_pct: s => dvz(s.pc, s.tpp), pnc_pct: s => dvz(s.pnc, s.tpp), pl_pct: s => dvz(s.pl, s.tpp),
+  terc: s => dvz(s.tpp - s.pl, s.tpp),
+  oner_pct: s => dvz(s.db, s.tpp),
+  naoner_pct: s => dvz(s.tpp - s.pl - s.db, s.tpp),
+  oner_terc: s => (s.tpp - s.pl) <= 0 ? NA : s.db / (s.tpp - s.pl),
+  cmv: s => dvz(s.cmv, s.rl),
+  mb: s => dvz(s.lb, s.rl),
+  sga: s => dvz(s.dv + s.ga, s.rl),
+  dv: s => dvz(s.dv, s.rl),
+  ga: s => dvz(s.ga, s.rl),
+  m_ebitda: s => dvz(s.ebitda, s.rl),
+  depac: s => (s.imobb === 0 || s.depac === 0) ? NA : s.depac / s.imobb,
+  dep_rec: s => dvz(s.da, s.rl),
+  m_ebit: s => dvz(s.ebit, s.rl),
+  df_rec: s => dvz(s.df, s.rl),
+  m_lair: s => dvz(s.lair, s.rl),
+  m_liq: s => dvz(s.ll, s.rl),
+  cresc_rec: (s, y) => { if (y === 0) return NA; const r = dvz(s.rl, ST[0].rl); return isN(r) ? r - 1 : NA; },
+  cresc_ebitda: (s, y) => (y === 0 || ST[0].ebitda <= 0) ? NA : s.ebitda / ST[0].ebitda - 1,
+  cresc_ll: (s, y) => (y === 0 || ST[0].ll <= 0) ? NA : s.ll / ST[0].ll - 1,
+  cresc_fco: (s, y) => (y === 0 || ST[0].fco <= 0) ? NA : s.fco / ST[0].fco - 1,
+  cresc_ativo: (s, y) => { if (y === 0) return NA; const r = dvz(s.ativo, ST[0].ativo); return isN(r) ? r - 1 : NA; },
+  outrec: s => dvz(s.orr, s.rl),
+  resfin: s => dvz(s.rf - s.df, s.rl),
+  adiant: s => dvz(s.adiant, s.rl),
+  ebitda_aj: s => s.ebitda - s.orr + s.od,
+  m_ebitda_aj: s => dvz(s.ebitda - s.orr + s.od, s.rl),
+  aliq: s => s.lair <= 0 ? NA : s.ir / s.lair,
+  lc: s => dvz(s.ac, s.pc),
+  ls: s => dvz(s.ac - s.est - s.antec, s.pc),
+  li: s => dvz(s.caixa + s.instr, s.pc),
+  lg: s => dvz(s.ac + s.crlp, s.pc + s.pnc),
+  l_fco: s => dvz(s.fco, s.pc),
+  ccl: s => s.ac - s.pc,
+  ncg: s => (s.cr + s.est + s.imprec + s.antec + s.ocirc) - (s.forn + s.obrig + s.adiant + s.opc),
+  tes: (s, y, g) => g('ccl') - g('ncg'),
+  ncg_dias: (s, y, g) => { const r = dvz(g('ncg'), s.rl); return isN(r) ? r * 365 : NA; },
+  ccl_rec: (s, y, g) => dvz(g('ccl'), s.rl),
+  fleuriet: (s, y, g) => {
+    const ccl = g('ccl'), ncg = g('ncg'), tes = g('tes');
+    if (!isN(ccl) || !isN(ncg) || !isN(tes)) return NA;
+    if (ccl > 0) { if (ncg < 0) return 'Tipo I'; return tes >= 0 ? 'Tipo II' : 'Tipo III'; }
+    if (ncg > 0) return 'Tipo IV';
+    return tes < 0 ? 'Tipo V' : 'Tipo VI';
+  },
+  ncg_inc: (s, y, g) => {
+    if (y === 0) return NA;
+    const dr = s.rl - ST[0].rl; if (dr <= 0) return NA;
+    return (g('ncg', 1) - g('ncg', 0)) / dr;
+  },
+  pme: s => s.cmv === 0 ? 0 : s.est / s.cmv * 365,
+  pmr: s => { const r = dvz(s.cr, s.rl); return isN(r) ? r * 365 : NA; },
+  cop: (s, y, g) => { const a = g('pme'), b = g('pmr'); return isN(a) && isN(b) ? a + b : NA; },
+  pmp: s => s.cmv === 0 ? NA : s.forn / s.cmv * 365,
+  cfin: (s, y, g) => { const a = g('cop'), b = g('pmp'); return isN(a) && isN(b) ? a - b : NA; },
+  fco: s => s.fco,
+  fcl: s => s.fco + s.capex,
+  conv: s => s.ebitda <= 0 ? NA : s.fco / s.ebitda,
+  qual: s => s.ll <= 0 ? NA : s.fco / s.ll,
+  accruals: s => dvz(s.ll - s.fco, s.ativo),
+  mfcl: (s, y, g) => dvz(g('fcl'), s.rl),
+  cob_div: (s, y, g) => dvz(s.fco, g('db')),
+  dl_fco: (s, y, g) => s.fco <= 0 ? NA : g('dl') / s.fco,
+  cob_capex: s => s.capex >= 0 ? NA : s.fco / -s.capex,
+  cj_caixa: s => { const j = s.jurosfco + s.jurosfin; return j >= 0 ? NA : (s.fco - s.jurosfco) / -j; },
+  dep_fin: s => s.fco <= 0 ? NA : s.fcf / s.fco,
+  meses: (s, y, g) => { const f = g('fcl'); return f >= 0 ? NA : (s.caixa + s.instr) / (-f / 12); },
+  payout: s => s.ll <= 0 ? NA : -s.divid / s.ll,
+  fcl_div: s => s.fco + s.capex + s.divid,
+  db: s => s.db,
+  dl: s => s.db - (s.caixa + s.instr),
+  dl_ebitda: (s, y, g) => s.ebitda <= 0 ? NA : g('dl') / s.ebitda,
+  db_ebitda: (s, y, g) => s.ebitda <= 0 ? NA : g('db') / s.ebitda,
+  dl_pl: (s, y, g) => s.pl <= 0 ? NA : g('dl') / s.pl,
+  cj_ebit: s => dvz(s.ebit, s.df),
+  cj_ebitda: s => dvz(s.ebitda, s.df),
+  custo_div: (s, y, g) => dvz(s.df, g('db')),
+  endiv: s => dvz(s.pc + s.pnc, s.ativo),
+  comp: s => dvz(s.pc, s.pc + s.pnc),
+  cx_dcp: s => dvz(s.caixa + s.instr, s.emp + s.arr),
+  giro: s => dvz(s.rl, s.ativo),
+  alav: s => s.pl <= 0 ? NA : s.ativo / s.pl,
+  roe: s => s.pl <= 0 ? NA : s.ll / s.pl,
+  roa: s => dvz(s.ll, s.ativo),
+  roce: s => dvz(s.ebit, s.ativo - s.pc),
+  roic: (s, y, g) => (s.pl + g('dl')) <= 0 ? NA : s.ebit / (s.pl + g('dl')),
+  imob_pl: s => s.pl <= 0 ? NA : (s.invest + s.imobl + s.intang) / s.pl,
+  giro_imob: s => dvz(s.rl, s.imobl),
+  cx_ativo: s => dvz(s.caixa + s.instr, s.ativo),
+  int_ativo: s => dvz(s.intang, s.ativo),
+  capex: s => -s.capex,
+  inv_liq: s => -(s.capex + s.vendaimob),
+  capex_rec: s => dvz(-s.capex, s.rl),
+  capex_da: s => dvz(-s.capex, s.da),
+  ebitda_capex: s => s.ebitda + s.capex,
+  capex_exp: s => -s.capex - s.da,
+  opex: s => s.cmv + s.dv + s.ga + s.od,
+  opex_rec: (s, y, g) => dvz(g('opex'), s.rl),
+  opex_cx: (s, y, g) => dvz(g('opex') - s.da, s.rl),
+  cx_dias_opex: (s, y, g) => dvz(s.caixa + s.instr, (g('opex') - s.da) / 365),
+  retencao: s => s.ll <= 0 ? NA : 1 + s.divid / s.ll,
+  sgr: (s, y, g) => { const a = g('roe'), b = g('retencao'); return isN(a) && isN(b) ? a * b : NA; },
+  outros_pl: (s, y) => y === 0 ? NA : (s.pl - ST[0].pl) - s.ll - s.divid,
+  p_tax: () => state.prem.p_tax, p_rf: () => state.prem.p_rf, p_beta: () => state.prem.p_beta, p_erp: () => state.prem.p_erp,
+  ke: (s, y, g) => g('p_rf') + g('p_beta') * g('p_erp'),
+  kd: (s, y, g) => g('custo_div'),
+  kd_at: (s, y, g) => isN(g('kd')) ? g('kd') * (1 - g('p_tax')) : NA,
+  wd: (s, y, g) => s.pl <= 0 ? NA : g('db') / (g('db') + s.pl),
+  we: (s, y, g) => isN(g('wd')) ? 1 - g('wd') : NA,
+  wacc: (s, y, g) => {
+    const we = g('we'), wd = g('wd'); if (!isN(we)) return NA;
+    if (wd === 0) return g('ke') * we;
+    const k = g('kd_at'); return isN(k) ? g('ke') * we + k * wd : NA;
+  },
+  spread_roe: (s, y, g) => isN(g('roe')) ? g('roe') - g('ke') : NA,
+  nopat: (s, y, g) => s.ebit > 0 ? s.ebit * (1 - g('p_tax')) : s.ebit,
+  capinv: (s, y, g) => s.pl + g('dl'),
+  roic_at: (s, y, g) => g('capinv') <= 0 ? NA : g('nopat') / g('capinv'),
+  spread: (s, y, g) => (isN(g('roic_at')) && isN(g('wacc'))) ? g('roic_at') - g('wacc') : NA,
+  eva: (s, y, g) => (isN(g('wacc')) && isN(g('capinv'))) ? g('nopat') - g('wacc') * g('capinv') : NA
+};
+const ITEM = {}; META.blocks.forEach(b => b.items.forEach(i => { if (i.id) ITEM[i.id] = i; }));
+let VAL = [{}, {}];
+function calcIndicators(){
+  VAL = [{}, {}];
+  for (const y of [0, 1]) {
+    const g = (id, yy = y) => {
+      if (VAL[yy][id] !== undefined) return VAL[yy][id];
+      VAL[yy][id] = NA;                        // trava contra ciclos
+      let v; try { v = F[id](ST[yy], yy, (i2, y2 = yy) => g(i2, y2)); } catch (e) { v = NA; }
+      if (typeof v === 'number' && !isFinite(v)) v = NA;
+      return VAL[yy][id] = v;
+    };
+    for (const id in F) g(id, y);
+  }
+}
+function limVal(l){
+  if (l === null || l === undefined) return null;
+  if (typeof l === 'number') return l;
+  if (l.ref) { const v = VAL[1][l.ref]; return isN(v) ? v : null; }
+  if (l.mul) return l.mul * ST[1][l.stmt];
+  if (l.stmt) return ST[1][l.stmt];
+  return null;
+}
+function statusOf(id){
+  const it = ITEM[id], v = VAL[1][id];
+  if (it.special === 'fleuriet') return (v === 'Tipo I' || v === 'Tipo II') ? 'OK' : (typeof v === 'string' && v.startsWith('Tipo')) ? 'AT' : 'NA';
+  if (!isN(v)) return 'NA';
+  const lo = limVal(it.lo), hi = limVal(it.hi);
+  if (lo === null && hi === null) return 'NA';
+  return ((lo === null || v >= lo) && (hi === null || v <= hi)) ? 'OK' : 'AT';
+}
+
+/* ------------------------------------------------------------------ formatação */
+function fmtVal(fmt, v){
+  if (!isN(v)) return typeof v === 'string' ? v : NA;
+  switch (fmt) {
+    case 'num': return nf0.format(Math.round(v));
+    case 'pct': return nf1.format(v * 100) + '%';
+    case 'pct2': return nf2.format(v * 100) + '%';
+    case 'x': return nf2.format(v) + 'x';
+    case 'dias': return nf0.format(Math.round(v));
+    case 'meses': return nf1.format(v);
+    case 'beta': return nf2.format(v);
+    default: return String(v);
+  }
+}
+function fmtVar(it, a, b){
+  if (it.mtype === 'none') return {t: '', c: ''};
+  if (it.mtype === 'text') return {t: a === b ? 'igual' : 'mudou', c: ''};
+  if (!isN(a) || !isN(b)) return {t: 'n.a.', c: ''};
+  const d = b - a; let t;
+  if (it.mtype === 'pp') t = sgn(d, nf1.format(Math.abs(d * 100)) + ' p.p');
+  else if (it.fmt === 'x') t = sgn(d, nf2.format(Math.abs(d)) + 'x');
+  else if (it.fmt === 'dias') t = sgn(d, nf0.format(Math.abs(Math.round(d))) + ' dias');
+  else if (it.fmt === 'meses') t = sgn(d, nf1.format(Math.abs(d)) + ' m');
+  else if (it.fmt === 'beta') t = sgn(d, nf2.format(Math.abs(d)));
+  else t = sgn(d, nf0.format(Math.abs(Math.round(d))));
+  let c = '';
+  if (d !== 0) { if (it.arrow === '↑') c = d > 0 ? 'g' : 'r'; else if (it.arrow === '↓') c = d < 0 ? 'g' : 'r'; }
+  return {t, c};
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const yl = y => state.meta[y ? 'y1' : 'y0'] || (y ? 'Ano atual' : 'Ano anterior');
+
+/* ------------------------------------------------------------------ painéis de preenchimento */
+function buildStatement(panel, rows, intro, nextLabel, nextTab){
+  let h = intro + '<table class="st"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    if (r.sec) { h += `<tr class="sec"><td colspan="5">${esc(r.sec)}</td></tr>`; return; }
+    const cls = r.c ? (r.chk ? 'calc chk' : 'calc') : (r.hl ? 'hl' : '');
+    const lbl = `<td class="lbl">${esc(r.l)}${r.h ? `<small>${esc(r.h)}</small>` : ''}</td>`;
+    if (r.c) {
+      h += `<tr class="${cls}" data-c="${r.c}">${lbl}<td class="v" data-cv="${r.c}" data-y="0"></td><td class="v" data-cv="${r.c}" data-y="1"></td><td class="v col-var" data-cp="${r.c}"></td><td class="v col-var" data-cd="${r.c}"></td></tr>`;
+    } else {
+      const auto1 = r.y1auto ? `<td class="v" data-cv="cxini1" data-y="1"></td>` : null;
+      h += `<tr class="${cls}">${lbl}<td><input class="num" inputmode="decimal" placeholder="0" data-k="${r.k}" data-y="0" aria-label="${esc(r.l)} ${'ano anterior'}"></td>` +
+        (auto1 || `<td><input class="num" inputmode="decimal" placeholder="0" data-k="${r.k}" data-y="1" aria-label="${esc(r.l)} ${'ano atual'}"></td>`) +
+        `<td class="v col-var" data-vp="${r.k}"></td><td class="v col-var" data-vd="${r.k}"></td></tr>`;
+    }
+  });
+  h += '</tbody></table>';
+  h += `<div id="chk-${panel}"></div><div class="next">${nextTab ? `<span></span><button class="btn primary" data-go="${nextTab}" type="button">${nextLabel} →</button>` : ''}</div>`;
+  $('#p-' + panel).innerHTML = h;
+}
+function buildPanels(){
+  buildStatement('dre', DRE_ROWS,
+    `<div class="note"><b>Passo 1 de 3 · DRE.</b> Informe todos os valores como números positivos, na ordem do demonstrativo. Os totais (cinza) são calculados. Use a mesma unidade em todas as telas. Campos em branco contam como 0.</div>`,
+    'Próximo: Balanço', 'bp');
+  buildStatement('bp', BP_ROWS,
+    `<div class="note"><b>Passo 2 de 3 · Balanço Patrimonial.</b> Informe os valores positivos (a depreciação acumulada também é positiva). O balanço precisa fechar: Total do Ativo = Total do Passivo + PL. A verificação aparece embaixo.</div>`,
+    'Próximo: DFC', 'dfc');
+  buildStatement('dfc', DFC_ROWS,
+    `<div class="note"><b>Passo 3 de 3 · DFC (método indireto).</b> Aqui os sinais importam: <b>entrou caixa = positivo; saiu caixa = negativo</b>. O lucro líquido e a depreciação vêm da DRE; o caixa inicial do ano atual é o caixa final do ano anterior. Ao final, o caixa final da DFC precisa ser igual ao Caixa e Equivalentes do balanço.</div>`,
+    'Ver análise', 'an');
+  $$('input.num').forEach(inp => {
+    inp.addEventListener('input', onInput);
+    inp.addEventListener('blur', onBlur);
+    inp.addEventListener('focus', () => inp.select());
+  });
+}
+function onInput(e){
+  const inp = e.target, n = parseBR(inp.value);
+  inp.classList.toggle('bad', !isFinite(n));
+  if (!isFinite(n)) return;
+  setV(inp.dataset.k, +inp.dataset.y, n);
+  persist(); refresh();
+}
+function onBlur(e){
+  const inp = e.target, n = getV(inp.dataset.k, +inp.dataset.y);
+  inp.value = n === 0 ? '' : nfIn.format(n); inp.classList.remove('bad');
+}
+function fillInputs(){
+  $$('input.num').forEach(inp => { const n = getV(inp.dataset.k, +inp.dataset.y); inp.value = n === 0 ? '' : nfIn.format(n); inp.classList.remove('bad'); });
+  $('#company').value = state.meta.company; $('#unit').value = state.meta.unit; $('#y0').value = state.meta.y0; $('#y1').value = state.meta.y1;
+}
+const cell = (n) => `<span class="${n < 0 ? 'neg' : ''}">${nf0.format(Math.round(n * 100) / 100)}</span>`;
+function refreshStatements(){
+  $$('.yh0').forEach(e => e.textContent = yl(0)); $$('.yh1').forEach(e => e.textContent = yl(1));
+  $$('[data-cv]').forEach(td => {
+    const id = td.dataset.cv, y = +td.dataset.y;
+    let n;
+    if (id === 'cxini1') n = ST[1].cxini;
+    else {
+      const def = [...DRE_ROWS, ...BP_ROWS, ...DFC_ROWS].find(r => r.c === id);
+      n = def.f(ST[y]);
+    }
+    td.innerHTML = cell(n);
+  });
+  const find = id => [...DRE_ROWS, ...BP_ROWS, ...DFC_ROWS].find(r => r.c === id);
+  $$('[data-cp]').forEach(td => {
+    const id = td.dataset.cp, f = find(id).f, a = f(ST[0]), b = f(ST[1]);
+    td.textContent = a === 0 ? (b === 0 ? '0,0%' : 'N/A') : (a < 0 && ['ll','lair','ebit','ebitda','lb','rl'].includes(id) ? 'N/A' : nf1.format((b - a) / Math.abs(a) * 100) + '%');
+  });
+  $$('[data-cd]').forEach(td => { const f = find(td.dataset.cd).f; td.innerHTML = cell(f(ST[1]) - f(ST[0])); });
+  const valK = (k, y) => k === 'cxini' ? ST[y].cxini : getV(k, y);
+  $$('[data-vp]').forEach(td => {
+    const k = td.dataset.vp, a = valK(k, 0), b = valK(k, 1);
+    td.textContent = a === 0 ? (b === 0 ? '0,0%' : 'N/A') : (a < 0 ? 'N/A' : nf1.format((b / a - 1) * 100) + '%');
+  });
+  $$('[data-vd]').forEach(td => { const k = td.dataset.vd; td.innerHTML = cell(valK(k, 1) - valK(k, 0)); });
+  // verificações
+  const c = checks();
+  const box = (ok, has, okMsg, badMsg) => !has ? '' : ok ? `<div class="note good" style="margin-top:14px">✓ ${okMsg}</div>` : `<div class="note bad" style="margin-top:14px">✗ ${badMsg}</div>`;
+  $('#chk-bp').innerHTML = box(c.bpOk, c.hasBP, 'Balanço fechado: Ativo = Passivo + PL nos dois anos.',
+    `O balanço não fecha. Diferença (Ativo − Passivo − PL): ${yl(0)} = ${nf0.format(c.bp[0])}; ${yl(1)} = ${nf0.format(c.bp[1])}. Revise os lançamentos antes de confiar nos indicadores.`);
+  $('#chk-dfc').innerHTML = box(c.dfcOk, c.hasDFC && c.hasBP, 'Caixa final da DFC = Caixa e Equivalentes do balanço, nos dois anos.',
+    `O caixa final da DFC não bate com o Caixa e Equivalentes do balanço. Diferença (DFC − Balanço): ${yl(0)} = ${nf0.format(c.dfc[0])}; ${yl(1)} = ${nf0.format(c.dfc[1])}. Confira os sinais, o caixa inicial e as variações.`);
+  const mark = (id, ok, has) => { const e = $(id); e.textContent = !has ? '' : ok ? '✓' : '✗'; e.className = 'st ' + (!has ? '' : ok ? 'ok' : 'bad'); };
+  mark('#st-bp', c.bpOk, c.hasBP); mark('#st-dfc', c.dfcOk, c.hasDFC && c.hasBP);
+  return c;
+}
+
+/* ------------------------------------------------------------------ análise */
+let showAll = false;
+function barChart(cats, s0, s1, title){
+  const W = 360, H = 190, pl = 8, pr = 8, pt = 14, pb = 34;
+  const all = [...s0, ...s1]; const mx = Math.max(0, ...all), mn = Math.min(0, ...all);
+  const span = (mx - mn) || 1, ih = H - pt - pb;
+  const y = v => pt + (mx - v) / span * ih, z = y(0);
+  const gw = (W - pl - pr) / cats.length, bw = Math.min(26, gw / 2.6);
+  let g = `<line x1="${pl}" x2="${W - pr}" y1="${z}" y2="${z}" stroke="#CBD5E1"/>`;
+  cats.forEach((c, i) => {
+    const cx = pl + gw * i + gw / 2;
+    [[s0[i], '#94A3B8', -1], [s1[i], '#2563EB', 1]].forEach(([v, col, o]) => {
+      const x = cx + (o < 0 ? -bw - 1 : 1), yy = y(v);
+      g += `<rect x="${x}" y="${Math.min(yy, z)}" width="${bw}" height="${Math.max(1, Math.abs(z - yy))}" rx="3" fill="${col}"><title>${esc(c)}: ${nf0.format(Math.round(v))}</title></rect>`;
+    });
+    g += `<text x="${cx}" y="${H - 14}" text-anchor="middle" font-size="10.5" fill="#64748B">${esc(c)}</text>`;
+  });
+  return `<div class="chart"><h5>${title}</h5><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg><div class="lg"><span><i style="background:#94A3B8"></i>${esc(yl(0))}</span><span><i style="background:#2563EB"></i>${esc(yl(1))}</span></div></div>`;
+}
+function donut(parts, title){
+  const tot = parts.reduce((a, p) => a + Math.max(0, p.v), 0);
+  if (!tot) return `<div class="chart"><h5>${title}</h5><p style="color:#94a3b8;font-size:13px">Sem dados.</p></div>`;
+  const r = 38, C = 2 * Math.PI * r; let off = 0, seg = '';
+  parts.forEach(p => { const l = Math.max(0, p.v) / tot * C; seg += `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${p.c}" stroke-width="18" stroke-dasharray="${l} ${C - l}" stroke-dashoffset="${-off}" transform="rotate(-90 60 60)"><title>${esc(p.l)}: ${nf1.format(p.v / tot * 100)}%</title></circle>`; off += l; });
+  return `<div class="chart"><h5>${title}</h5><svg viewBox="0 0 120 120" style="max-width:170px;margin:auto" role="img">${seg}</svg><div class="lg" style="justify-content:center">${parts.map(p => `<span><i style="background:${p.c}"></i>${esc(p.l)} ${nf1.format(Math.max(0, p.v) / tot * 100)}%</span>`).join('')}</div></div>`;
+}
+const pctChg = (a, b) => (a > 0 ? (b / a - 1) : null);
+function kpiCard(label, val, sub, cls){ return `<div class="kpi4"><small>${label}</small><b>${val}</b><span class="${cls || ''}">${sub}</span></div>`; }
+function rowHTML(it, vals, srcId){
+  const id = srcId || it.id, def = ITEM[id];
+  const a = VAL[0][id], b = VAL[1][id], st = statusOf(id), vr = fmtVar(def, a, b);
+  const label = it.label || def.label;
+  const chip = `<span class="chip ${st}">${st === 'OK' ? 'OK' : st === 'AT' ? 'ATENÇÃO' : '—'}</span>`;
+  const ex = it.link ? esc(it.question) + ` <span class="go" data-jump="${esc(blockOfId(id))}">→ Aprofunde no bloco ${blockNum(id)}</span>` : esc(def.expl);
+  const arrow = def.arrow || '–';
+  let inputCells;
+  if (def.input) {
+    const pc = def.fmt === 'beta' ? nf2.format(state.prem[id]).replace('.', ',') : nf2.format(state.prem[id] * 100).replace('.', ',');
+    inputCells = `<td class="in"><input class="num prem" inputmode="decimal" data-prem="${id}" value="${pc}${def.fmt === 'beta' ? '' : '%'}" aria-label="${esc(label)}"></td><td>${esc(fmtVal(def.fmt, b))}</td>`;
+  } else inputCells = `<td>${esc(fmtVal(def.fmt, a))}</td><td>${esc(fmtVal(def.fmt, b))}</td>`;
+  const open = showAll ? '' : ' hidden';
+  return `<tr data-row><td class="l"><button type="button" class="tg"><span class="i">i</span><span>${esc(label)}</span></button></td>${inputCells}<td class="var ${vr.c}">${esc(vr.t)}</td><td class="arrow">${esc(arrow)}</td><td>${def.input ? '<span class="chip NA">—</span>' : chip}</td><td class="ref">${esc(def.ref || '—')}</td></tr><tr class="ex"${open}><td colspan="7">${ex}${def.input ? ' <br><b>Altere o valor azul; ele vale para os dois anos.</b>' : ''}</td></tr>`;
+}
+const BID = {};
+META.blocks.forEach(b => b.items.forEach(i => { if (i.id) BID[i.id] = b; }));
+const blockOfId = id => BID[id] ? 'b' + BID[id].num : '';
+const blockNum = id => BID[id] ? BID[id].num + ' (' + BID[id].title + ')' : '';
+function renderAnalysis(c){
+  const p = $('#p-an');
+  if (!hasData()) { p.innerHTML = `<div class="note">Preencha a DRE, o Balanço e a DFC, ou <a href="#app" id="exLink" class="go">carregue o exemplo do Flamengo</a>, para ver a análise.</div>`; const l = $('#exLink'); if (l) l.onclick = e => { e.preventDefault(); loadExample(); }; return; }
+  const s0 = ST[0], s1 = ST[1];
+  let h = '';
+  if (c.hasBP && !c.bpOk) h += `<div class="note bad">✗ O balanço não fecha (diferença de ${nf0.format(c.bp[1])} no ano atual). Os indicadores podem estar errados: corrija na aba Balanço.</div>`;
+  if (c.hasDFC && c.hasBP && !c.dfcOk) h += `<div class="note warn">⚠ O caixa final da DFC não bate com o balanço (diferença de ${nf0.format(c.dfc[1])} no ano atual). Revise a DFC.</div>`;
+  const g = pctChg(s0.rl, s1.rl), gl = pctChg(s0.ll, s1.ll);
+  const alerts = countAlerts();
+  h += `<div class="kpis4">` +
+    kpiCard('Receita Líquida', nf0.format(Math.round(s1.rl)), g === null ? '—' : (g >= 0 ? '▲ ' : '▼ ') + nf1.format(Math.abs(g) * 100) + '% vs. ano anterior', g === null ? '' : g >= 0 ? 'pos' : 'neg') +
+    kpiCard('Lucro Líquido', nf0.format(Math.round(s1.ll)), gl === null ? '—' : (gl >= 0 ? '▲ ' : '▼ ') + nf1.format(Math.abs(gl) * 100) + '% vs. ano anterior', gl === null ? '' : gl >= 0 ? 'pos' : 'neg') +
+    kpiCard('Margem EBITDA', fmtVal('pct', VAL[1].m_ebitda), isN(VAL[0].m_ebitda) && isN(VAL[1].m_ebitda) ? sgn(VAL[1].m_ebitda - VAL[0].m_ebitda, nf1.format(Math.abs(VAL[1].m_ebitda - VAL[0].m_ebitda) * 100) + ' p.p') : '—', isN(VAL[0].m_ebitda) && isN(VAL[1].m_ebitda) ? (VAL[1].m_ebitda >= VAL[0].m_ebitda ? 'pos' : 'neg') : '') +
+    kpiCard('Check-up', alerts.t, alerts.n === 0 ? 'Nenhum alerta' : alerts.n + ' em ATENÇÃO', alerts.n === 0 ? 'pos' : 'neg') + `</div>`;
+  h += `<div class="charts">` +
+    barChart(['Receita líq.', 'EBITDA', 'Lucro líq.'], [s0.rl, s0.ebitda, s0.ll], [s1.rl, s1.ebitda, s1.ll], 'Resultado (DRE)') +
+    barChart(['FCO', 'FCI', 'FCF', 'Δ Caixa'], [s0.fco, s0.fci, s0.fcf, s0.dcaixa], [s1.fco, s1.fci, s1.fcf, s1.dcaixa], 'Fluxo de caixa (DFC)') +
+    donut([{l: 'Circulante', v: s1.ac, c: '#2563EB'}, {l: 'Não circ.', v: s1.anc, c: '#10B981'}], `Composição do ativo (${esc(yl(1))})`) + `</div>`;
+  h += `<div class="blocknav" id="bnav">` + META.blocks.map(b => `<a href="#b${b.num}" data-jump="b${b.num}" class="${blockHasBad(b) ? 'has-bad' : ''}">${b.num} · ${esc(b.title.split(' (')[0].toLowerCase().replace(/^./, m => m.toUpperCase()))}</a>`).join('') + `</div>`;
+  h += `<div class="opts"><label><input type="checkbox" id="showAll" ${showAll ? 'checked' : ''}> Mostrar todas as explicações</label><span>Clique em um indicador para ler a explicação. Ponto vermelho no menu = bloco com algum indicador em ATENÇÃO.</span></div>`;
+  META.blocks.forEach(b => {
+    h += `<section class="block ${b.num === 1 ? 'first' : ''}" id="b${b.num}" style="padding:0"><header><h3><span>${b.num}</span> · ${esc(b.title)}</h3><p>${esc(b.question)}</p></header><div class="scroll"><table class="ind"><thead><tr><th>Indicador</th><th>${esc(yl(0))}</th><th>${esc(yl(1))}</th><th>Var.</th><th>Melhor</th><th>Situação</th><th>Referência</th></tr></thead><tbody>`;
+    b.items.forEach(it => {
+      if (it.sub) h += `<tr class="sub"><td colspan="7">${esc(it.sub)}</td></tr>`;
+      else if (it.alerts) h += `<tr class="alerts"><td class="l" style="font-weight:700">Indicadores em ATENÇÃO neste check-up</td><td>—</td><td>${alerts.t}</td><td></td><td></td><td></td><td class="ref">Só conta indicadores com referência numérica, no ano atual.</td></tr>`;
+      else if (it.link) h += rowHTML({label: it.label, link: true, question: it.question}, null, it.src);
+      else h += rowHTML(it);
+    });
+    h += `</tbody></table></div></section>`;
+  });
+  p.innerHTML = h;
+  bindAnalysis();
+}
+function checkupIds(){ const b = META.blocks[0]; return b.items.filter(i => i.id || i.link).map(i => i.link ? i.src : i.id); }
+function countAlerts(){
+  let ok = 0, at = 0;
+  checkupIds().forEach(id => { const s = statusOf(id); if (s === 'OK') ok++; else if (s === 'AT') at++; });
+  return {n: at, t: at + ' de ' + (at + ok)};
+}
+function blockHasBad(b){ return b.items.some(i => { const id = i.link ? i.src : i.id; return id && !i.input && statusOf(id) === 'AT'; }); }
+function bindAnalysis(){
+  $$('#p-an button.tg').forEach(b => b.addEventListener('click', () => { const ex = b.closest('tr').nextElementSibling; ex.hidden = !ex.hidden; }));
+  $$('#p-an [data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); const t = document.getElementById(a.dataset.jump); if (t) t.scrollIntoView({behavior: 'smooth', block: 'start'}); }));
+  const sa = $('#showAll'); if (sa) sa.onchange = () => { showAll = sa.checked; $$('#p-an tr.ex').forEach(r => r.hidden = !showAll); };
+  $$('#p-an input.prem').forEach(inp => {
+    inp.addEventListener('focus', () => inp.select());
+    inp.addEventListener('change', () => {
+      const id = inp.dataset.prem, n = parseBR(inp.value);
+      if (!isFinite(n)) { toast('Valor inválido'); return; }
+      state.prem[id] = ITEM[id].fmt === 'beta' ? n : n / 100;
+      persist(); refresh(true);
+    });
+  });
+}
+
+/* ------------------------------------------------------------------ orquestração */
+let currentTab = 'dre';
+function refresh(keepFocus){
+  calcStatements(); calcIndicators();
+  const c = refreshStatements();
+  if (currentTab === 'an') {
+    const sy = window.scrollY; renderAnalysis(c); if (keepFocus) window.scrollTo(0, sy);
+  }
+}
+function showTab(t){
+  currentTab = t;
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  ['dre', 'bp', 'dfc', 'an'].forEach(k => $('#p-' + k).hidden = k !== t);
+  refresh();
+}
+function go(t, scroll = true){ showTab(t); if (scroll) $('#app').scrollIntoView({behavior: 'smooth'}); }
+function loadExample(){
+  state.meta = {company: 'Flamengo (controladora) · exemplo', unit: 'R$ mil', y0: '2024', y1: '2025'};
+  state.v = {}; for (const k in EXAMPLE) state.v[k] = [EXAMPLE[k][0], EXAMPLE[k][1]];
+  META.blocks.forEach(b => b.items.forEach(i => { if (i.input) state.prem[i.id] = i.default; }));
+  fillInputs(); persist(); go('an'); toast('Exemplo carregado: Flamengo, controladora (R$ mil).');
+}
+function clearAll(){
+  if (!confirm('Apagar todos os dados preenchidos?')) return;
+  state.v = {}; state.meta = {company: '', unit: 'R$ mil', y0: '2024', y1: '2025'};
+  META.blocks.forEach(b => b.items.forEach(i => { if (i.input) state.prem[i.id] = i.default; }));
+  fillInputs(); persist(); refresh(); toast('Dados apagados.');
+}
+function download(name, text, type){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const fname = () => (state.meta.company || 'fluxe').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'fluxe';
+function saveFile(){ download('fluxe-' + fname() + '.json', JSON.stringify({app: 'fluxe', version: 1, ...state}, null, 1), 'application/json'); }
+function openFile(f){
+  const r = new FileReader();
+  r.onload = () => { try { const o = JSON.parse(r.result); if (o.app !== 'fluxe') throw 0; applyState(o); fillInputs(); persist(); go('an'); toast('Arquivo aberto.'); } catch (e) { toast('Arquivo inválido.'); } };
+  r.readAsText(f);
+}
+function exportCsv(){
+  const sep = ';', num = v => isN(v) ? String(v).replace('.', ',') : (v === NA ? '' : v);
+  const rows = [['Bloco', 'Indicador', state.meta.y0, state.meta.y1, 'Variação', 'Situação (ano atual)', 'Referência', 'Explicação']];
+  META.blocks.forEach(b => b.items.forEach(i => {
+    const id = i.link ? i.src : i.id; if (!id) return;
+    if (i.link && b.num === 1) return;
+    const d = ITEM[id], vr = fmtVar(d, VAL[0][id], VAL[1][id]), st = statusOf(id);
+    rows.push([b.num + ' ' + b.title, i.label || d.label, num(VAL[0][id]), num(VAL[1][id]), vr.t, d.input ? '' : st === 'OK' ? 'OK' : st === 'AT' ? 'ATENÇÃO' : '', d.ref || '', d.expl]);
+  }));
+  const q = s => '"' + String(s === undefined ? '' : s).replace(/"/g, '""') + '"';
+  download('fluxe-indicadores-' + fname() + '.csv', '﻿' + rows.map(r => r.map(q).join(sep)).join('\r\n'), 'text/csv;charset=utf-8');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildPanels(); restore(); fillInputs();
+  $$('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  $$('[data-go]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); go(a.dataset.go); }));
+  $('#company').addEventListener('input', e => { state.meta.company = e.target.value; persist(); });
+  $('#unit').addEventListener('change', e => { state.meta.unit = e.target.value; persist(); });
+  ['y0', 'y1'].forEach(id => $('#' + id).addEventListener('input', e => { state.meta[id] = e.target.value; persist(); refresh(true); }));
+  $('#bExample').onclick = loadExample; $('#heroExample').onclick = loadExample; $('#cta2').onclick = loadExample;
+  $('#bSave').onclick = saveFile; $('#bOpen').onclick = () => $('#fileIn').click();
+  $('#fileIn').onchange = e => { if (e.target.files[0]) openFile(e.target.files[0]); e.target.value = ''; };
+  $('#bCsv').onclick = () => { calcStatements(); calcIndicators(); exportCsv(); };
+  $('#bPdf').onclick = () => { calcStatements(); calcIndicators(); renderAnalysis(checks()); window.print(); };
+  $('#bClear').onclick = clearAll;
+  refresh();
+});
+</script>
+</body>
+</html>
