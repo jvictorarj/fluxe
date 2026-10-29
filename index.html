@@ -108,7 +108,8 @@ section.alt{background:var(--bg)}
 table.st{width:100%;border-collapse:collapse;font-size:14px}
 table.st th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding:8px 8px;border-bottom:1px solid var(--line);position:sticky;top:var(--navh);background:#fff;z-index:2}
 table.st th:first-child{text-align:left}
-table.st td{padding:4px 8px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+table.st{border-collapse:separate;border-spacing:0}
+table.st td{padding:0 8px;height:46px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
 table.st td.lbl{width:42%}
 table.st td.lbl small{display:block;color:var(--muted);font-size:12px;line-height:1.3;margin-top:1px}
 table.st td.v{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -126,17 +127,22 @@ tr.top .tg .i{background:rgba(255,255,255,.2);color:#fff}
 .stopts{margin:0 0 10px;font-size:13px;color:var(--muted)}
 table.st tr.sec td{background:var(--surface);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding:9px 8px}
 table.st tr.calc td{background:#F1F5F9;font-weight:700;color:var(--navy)}
-table.st tr.top td{background:var(--navy);color:#fff;font-weight:800;letter-spacing:.03em;padding:10px 8px}
+table.st tr.top td{background:var(--navy);color:#fff;font-weight:800;letter-spacing:.03em}
+table.st tr.top.tb td{background:#2B55A3}
+table.st tr.top.tg td{background:#059669}
+table.st tr.top td,table.st tr.grp td,table.st tr.calc td{border-top:3px solid #fff;border-bottom:3px solid #fff;background-clip:padding-box}
+table.st tr.top td:first-child,table.st tr.grp td:first-child,table.st tr.calc td:first-child{border-radius:16px 0 0 16px}
+table.st tr.top td:last-child,table.st tr.grp td:last-child,table.st tr.calc td:last-child{border-radius:0 16px 16px 0}
 table.st tr.top td .neg{color:#FCA5A5}
 table.st tr.top td.lbl small{color:#CBD5E1;font-weight:500;letter-spacing:0}
-table.st tr.grp td{font-weight:700;color:var(--navy);border-top:1px solid #cbd5e1;padding:9px 8px}
+table.st tr.grp td{font-weight:700;color:var(--navy)}
 table.st tr.grp.g td{background:#D9F7E4} table.st tr.grp.y td{background:#FEF6B8} table.st tr.grp.b td{background:#D6ECFB} table.st tr.grp.n td{background:#E8EEF6}
 table.st tr.grp td.lbl small{font-weight:500}
 table.st.indent tr:not(.grp):not(.top):not(.calc) td.lbl{padding-left:24px}
 table.st tr.subrow td{background:#FAFBFD;font-style:italic;color:#475569}
 table.st tr.hl td{background:#DDF3EA}
 table.st tr.chk td{background:#EAF1FF}
-input.num{width:100%;min-width:104px;text-align:center;padding:7px 9px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;background:#fff}
+input.num{width:100%;min-width:104px;text-align:center;height:34px;padding:0 9px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;background:#fff}
 input.num.bad{border-color:var(--danger);background:var(--danger-bg)}
 input.num.auto{background:#F1F5F9;color:var(--muted)}
 input.num::placeholder{color:#b6c0cd}
@@ -148,9 +154,11 @@ input.num.autoph::placeholder{color:#7c8ba1;font-style:italic}
 /* analysis */
 .kpis4{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
 .dash2{display:grid;grid-template-columns:1.15fr 1fr 1fr .85fr;gap:12px;margin-bottom:18px;align-items:stretch}
-.dash2 .stack{display:grid;gap:12px;align-content:stretch;grid-template-rows:1fr 1fr}
+.dash2 .stack{display:grid;gap:12px;grid-template-rows:repeat(5,1fr)}
+.dash2 .col2{display:grid;gap:12px;align-content:start}
+.dash2 .chart svg{max-height:175px}
+.dash2 .chart svg.gauge{max-height:none}
 .dash2 .kpi4{display:flex;flex-direction:column;justify-content:center}
-.dash2>.chart{display:flex;flex-direction:column;justify-content:center}
 .gauge{max-width:230px;margin:0 auto}
 .gnote{text-align:center;font-size:12px;color:var(--muted);margin-top:2px}
 .kpi4{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface)}
@@ -252,10 +260,12 @@ footer a{color:#cbd5e1}
   table.st{min-width:560px}
   table.st th{position:static}
   table.st th:first-child{position:sticky}
-  table.st td.lbl,table.st th:first-child{position:sticky;left:0;z-index:1;background:#fff;width:132px;min-width:132px;max-width:132px;box-shadow:2px 0 0 #eef2f7}
-  table.st th:first-child{z-index:3}
+  table.st td.lbl,table.st th:first-child{position:sticky;left:0;z-index:1;background:#fff;width:150px;min-width:150px;max-width:150px;box-shadow:2px 0 0 #eef2f7}
+  table.st th:first-child{z-index:3;top:auto}
   table.st tr.calc td.lbl{background:#F1F5F9}
   table.st tr.top td.lbl{background:var(--navy)}
+  table.st tr.top.tb td.lbl{background:#2B55A3}
+  table.st tr.top.tg td.lbl{background:#059669}
   table.st tr.grp.g td.lbl{background:#D9F7E4} table.st tr.grp.y td.lbl{background:#FEF6B8} table.st tr.grp.b td.lbl{background:#D6ECFB} table.st tr.grp.n td.lbl{background:#E8EEF6}
   table.st tr.hl td.lbl{background:#DDF3EA}
   table.st tr.subrow td.lbl{background:#FAFBFD}
@@ -265,9 +275,9 @@ footer a{color:#cbd5e1}
   table.ind{min-width:700px}
   .panel-body{padding:14px 10px}
   .app-top{padding:14px 12px}
-  input.num{min-width:78px;padding:6px 7px;font-size:13px}
-  table.st td{padding:4px 3px}
-  table.st td.lbl{font-size:13px}
+  input.num{min-width:78px;padding:0 7px;font-size:13px}
+  table.st td{padding:0 3px;height:66px}
+  table.st td.lbl{font-size:12.5px;line-height:1.25}
   table.st td.lbl small{font-size:11px}
   .mock .kpis{grid-template-columns:1fr 1fr}
   .mock .kpis .kpi:last-child{display:none}
@@ -486,24 +496,24 @@ function applyState(o){
 
 /* ------------------------------------------------------------------ demonstrativos: definição das linhas */
 const DRE_ROWS = [
-  {k:'rb', l:'RECEITA BRUTA', h:'Total vendido antes de impostos e devoluções.', top:1},
+  {k:'rb', l:'RECEITA BRUTA', h:'Total vendido antes de impostos e devoluções.', top:1, tone:'g'},
   {k:'imp', l:'Impostos sobre as Vendas', h:'Positivo. ICMS, PIS, COFINS, ISS. Se a receita já está líquida, deixe 0.'},
   {k:'dev', l:'Devoluções', h:'Positivo. Inclui abatimentos e cancelamentos.'},
-  {c:'rl', l:'RECEITA LÍQUIDA', f:s => s.rl, top:1},
+  {c:'rl', l:'RECEITA LÍQUIDA', f:s => s.rl, top:1, tone:'b'},
   {k:'cmv', l:'CMV / CPV / CSP', h:'Custo do que foi vendido (mercadoria, produto ou serviço). Positivo.'},
-  {c:'lb', l:'LUCRO BRUTO', f:s => s.lb, top:1},
+  {c:'lb', l:'LUCRO BRUTO', f:s => s.lb, top:1, tone:'b'},
   {k:'dv', l:'Despesas com Vendas', h:'Comerciais, marketing, comissões. Positivo.'},
   {k:'ga', l:'Despesas Administrativas', h:'Gerais e administrativas. Positivo.'},
   {k:'od', l:'Outras Despesas', h:'Itens fora da operação principal (perdas, baixas, provisões). Positivo.'},
   {k:'orr', l:'Outras Receitas', h:'Ganhos pontuais ou fora da operação (venda de imobilizado, de atletas, reversões). Positivo.'},
   {k:'da', l:'Depreciação e Amortização', h:'Já está dentro dos custos e despesas acima; é somada de volta ao EBITDA. Positivo. Se ela só aparece na DFC, deixe em branco aqui e preencha na DFC: o Fluxe usa a da DFC.', ph:'da_dfc'},
-  {c:'ebitda', l:'EBITDA', f:s => s.ebitda, top:1, h:'Lucro Bruto − Vendas − Administrativas − Outras Despesas + Outras Receitas + D&A'},
-  {c:'ebit', l:'EBIT', f:s => s.ebit, top:1, h:'EBITDA − D&A'},
+  {c:'ebitda', l:'EBITDA', f:s => s.ebitda, top:1, tone:'b', h:'Lucro Bruto − Vendas − Administrativas − Outras Despesas + Outras Receitas + D&A'},
+  {c:'ebit', l:'EBIT', f:s => s.ebit, top:1, tone:'b', h:'EBITDA − D&A'},
   {k:'df', l:'Despesas Financeiras', h:'Juros, variação cambial passiva, encargos. Positivo.'},
   {k:'rf', l:'Receitas Financeiras', h:'Rendimentos de aplicações, juros ativos. Positivo.'},
-  {c:'lair', l:'LAIR', f:s => s.lair, top:1},
+  {c:'lair', l:'LAIR', f:s => s.lair, top:1, tone:'b'},
   {k:'ir', l:'IR / CSLL', h:'Total do período (corrente + diferido). Positivo se despesa; negativo se crédito.'},
-  {c:'ll', l:'LUCRO LÍQUIDO', f:s => s.ll, top:1}
+  {c:'ll', l:'LUCRO LÍQUIDO', f:s => s.ll, top:1, tone:'b'}
 ];
 const BP_ROWS = [
   {c:'ativo', l:'ATIVO', f:s => s.ativo, top:1, chk:1},
@@ -517,10 +527,10 @@ const BP_ROWS = [
   {k:'antec', l:'Despesas Antecipadas'},
   {k:'avenda', l:'Ativos Mantidos para Venda'},
   {k:'ocirc', l:'Outros Circulantes'},
-  {c:'rlpt', l:'Ativo não circulante (realizável a longo prazo)', f:s => s.rlpt, grp:'y', h:'Vira dinheiro depois de 12 meses.'},
+  {c:'rlpt', l:'Ativo não circulante (RLP)', f:s => s.rlpt, grp:'y', h:'Realizável a longo prazo: vira dinheiro depois de 12 meses.'},
   {k:'crlp', l:'Contas a Receber LP', h:'Realizável a longo prazo.'},
   {k:'oncirc', l:'Outros Não Circulantes (ativo)'},
-  {c:'permt', l:'Ativo permanente (investimentos + imobilizado + intangível)', f:s => s.permt, grp:'b', h:'Ativos de uso duradouro, que não se destinam à venda.'},
+  {c:'permt', l:'Ativo permanente', f:s => s.permt, grp:'b', h:'Investimentos + imobilizado + intangível: ativos de uso duradouro, que não se destinam à venda.'},
   {k:'invest', l:'Investimentos'},
   {k:'imobb', l:'Imobilizado Bruto', h:'Se só tiver o líquido, informe o líquido aqui e 0 na depreciação acumulada.'},
   {k:'depac', l:'Depreciação Acumulada', h:'Informe positivo: será subtraída do bruto.'},
@@ -836,7 +846,8 @@ function buildStatement(panel, rows, intro, nextLabel, nextTab, opts = {}){
   let h = `<div id="top-${panel}"></div>` + intro + '<label class="stopts"><input type="checkbox" class="stAll"> Mostrar todas as explicações</label><p class="swipe">Deslize a tabela para o lado para ver a variação →</p><div class="tscroll"><table class="st' + (opts.indent ? ' indent' : '') + '"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th></tr></thead><tbody>';
   rows.forEach(r => {
     if (r.sec) { h += `<tr class="sec"><td colspan="5">${esc(r.sec)}</td></tr>`; return; }
-    const cls = r.c ? ['calc', r.top ? 'top' : '', r.grp ? 'grp ' + r.grp : '', r.chk && !r.top ? 'chk' : '', r.subrow || r.sub ? 'subrow' : ''].filter(Boolean).join(' ') : (r.top ? 'top' : r.hl ? 'hl' : '');
+    const tone = r.top && r.tone ? ' t' + r.tone : '';
+    const cls = r.c ? ['calc', r.top ? 'top' + tone : '', r.grp ? 'grp ' + r.grp : '', r.chk && !r.top ? 'chk' : '', r.subrow || r.sub ? 'subrow' : ''].filter(Boolean).join(' ') : (r.top ? 'top' + tone : r.hl ? 'hl' : '');
     const lbl = lblCell(r);
     if (r.c) {
       h += `<tr class="${cls}" data-c="${r.c}">${lbl}<td class="v" data-cv="${r.c}" data-y="0"></td><td class="v" data-cv="${r.c}" data-y="1"></td><td class="v col-var" data-cp="${r.c}"></td><td class="v col-var" data-cd="${r.c}"></td></tr>`;
@@ -902,7 +913,7 @@ function refreshStatements(){
     td.innerHTML = cell(n);
   });
   const find = id => [...DRE_ROWS, ...BP_ROWS, ...DFC_ROWS].find(r => r.c === id);
-  const dcls = (id, a, b) => { const d = DIR[id]; if (!d || a === b) return ''; return ((b > a) === (d === 'u')) ? ' vg' : ' vr'; };
+  const dcls = () => '';
   const plain = n => nf0.format(Math.round(n * 100) / 100);
   $$('[data-cp]').forEach(td => {
     const id = td.dataset.cp, f = find(id).f, a = f(ST[0]), b = f(ST[1]);
@@ -981,13 +992,13 @@ function cfmt(fmt, v){
 }
 function tfmt(fmt, v){ return !isN(v) ? 'n/a' : fmt === 'pct' ? nf1.format(v * 100) + '%' : fmt === 'x' ? nf2.format(v) + 'x' : nf0.format(Math.round(v)); }
 function barChart(cats, s0, s1, title, fmt = 'num', opt = {}){
-  const W = 360, H = opt.h || 170, pl = 8, pr = 8, pt = 20, pb = 40;
+  const W = opt.w || 360, H = opt.h || 170, pl = 8, pr = 8, pt = 20, pb = 40;
   const one = !s0 || s0.every(v => !isN(v));
   const all = [...(one ? [] : s0), ...s1, ...(isN(opt.ref) ? [opt.ref] : [])].filter(isN);
   const mx = Math.max(0, ...all), mn = Math.min(0, ...all);
   const span = (mx - mn) || 1, ih = H - pt - pb;
   const y = v => pt + (mx - v) / span * ih, z = y(0);
-  const gw = (W - pl - pr) / cats.length, bw = Math.min(one ? 34 : 24, gw / (one ? 1.8 : 2.4));
+  const gw = (W - pl - pr) / cats.length, bw = Math.min(cats.length === 1 ? 46 : one ? 34 : 24, gw / (one ? 1.8 : 2.4));
   let anyNeg = false;
   let g = `<line x1="${pl}" x2="${W - pr}" y1="${z}" y2="${z}" stroke="#CBD5E1"/>`;
   if (isN(opt.ref)) g += `<line x1="${pl}" x2="${W - pr}" y1="${y(opt.ref)}" y2="${y(opt.ref)}" stroke="#F59E0B" stroke-dasharray="4 3"/><text x="${W - pr}" y="${y(opt.ref) - 3}" text-anchor="end" font-size="9.5" fill="#B45309">referência ${tfmt(fmt, opt.ref)}</text>`;
@@ -1080,6 +1091,7 @@ function renderAnalysis(c){
   const dI = (kind, a, b, good = 'up') => {
     if (!isN(a) || !isN(b)) return {t: '—', c: ''};
     const d = b - a, ar = d >= 0 ? '▲ ' : '▼ ';
+    if (d === 0) return {t: 'sem variação vs. ano anterior', c: ''};
     let tx;
     if (kind === 'pp') tx = ar + nf1.format(Math.abs(d * 100)) + ' p.p';
     else if (kind === 'x') tx = ar + nf2.format(Math.abs(d)) + 'x';
@@ -1108,10 +1120,17 @@ function renderAnalysis(c){
       `<div class="gnote"><span class="${d.c}" style="font-weight:600">${d.t}</span><br>Passivo total ÷ ativo total. Acima de 60% (zona vermelha) é endividamento alto.</div></div>`;
   };
   h += `<div class="dash2">` + miniHTML(1, false) +
-    donut([{l: 'Capital próprio (PL)', v: s1.pl, c: '#2563EB'}, {l: 'Capital de terceiros', v: s1.tpp - s1.pl, c: '#F59E0B'}], `Estrutura do capital (${esc(yl(1))})`) +
-    gauge(VAL[1].endiv, VAL[0].endiv) +
+    `<div class="col2">` +
+      donut([{l: 'Capital próprio (PL)', v: s1.pl, c: '#2563EB'}, {l: 'Capital de terceiros', v: s1.tpp - s1.pl, c: '#F59E0B'}], `Estrutura do capital (${esc(yl(1))})`) +
+      gauge(VAL[1].endiv, VAL[0].endiv) + `</div>` +
+    `<div class="col2">` +
+      barChart(['Ativo ÷ PL'], [VAL[0].alav], [VAL[1].alav], 'Alavancagem financeira', 'x', {h: 150, w: 190}) +
+      barChart(['Receita ÷ Ativo'], [VAL[0].giro], [VAL[1].giro], 'Giro do ativo', 'x', {h: 150, w: 190}) + `</div>` +
     `<div class="stack">` + K('Fluxo de Caixa Livre (FCL)', nf0.format(Math.round(VAL[1].fcl)), dI('abs', VAL[0].fcl, VAL[1].fcl), VAL[1].fcl < 0) +
-    K('Liquidez Corrente', fmtVal('x', VAL[1].lc), dI('x', VAL[0].lc, VAL[1].lc)) + `</div></div>`;
+      K('Liquidez Corrente', fmtVal('x', VAL[1].lc), dI('x', VAL[0].lc, VAL[1].lc)) +
+      K('CMV', nf0.format(Math.round(s1.cmv)), dI('pct', s0.cmv, s1.cmv, 'down')) +
+      K('Total SG&A', nf0.format(Math.round(s1.dv + s1.ga)), dI('pct', s0.dv + s0.ga, s1.dv + s1.ga, 'down')) +
+      K('Dívida Bruta', nf0.format(Math.round(VAL[1].db)), dI('pct', VAL[0].db, VAL[1].db, 'down')) + `</div></div>`;
   h += `<div class="blocknav" id="bnav">` + META.blocks.map(b => `<a href="#b${b.num}" data-jump="b${b.num}" title="${esc(b.title)}" class="${blockHasBad(b) ? 'has-bad' : ''}">${b.num} · ${esc(SHORT[b.num] || b.title)}</a>`).join('') + `</div>`;
   h += `<div class="opts"><label><input type="checkbox" id="showAll" ${showAll ? 'checked' : ''}> Mostrar todas as explicações</label><span>Clique em um indicador para ler a explicação. Ponto vermelho no menu = bloco com algum indicador em ATENÇÃO.</span></div>`;
   META.blocks.forEach(b => {
