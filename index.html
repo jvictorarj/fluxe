@@ -386,7 +386,7 @@ footer a{color:#cbd5e1}
     <div class="sec-head">
       <div class="eyebrow">Analisar</div>
       <h2>Preencha e analise.</h2>
-      <p>Os dados ficam só no seu navegador: nada é enviado a servidor algum. Use "Salvar arquivo" para guardar o seu trabalho.</p>
+      <p>Os dados ficam só no seu navegador: nada é enviado a servidor algum.</p>
     </div>
     <div class="app-card">
       <div class="app-top">
@@ -398,13 +398,7 @@ footer a{color:#cbd5e1}
           <div class="field"><label for="y1">Ano atual</label><input id="y1" value="2025" maxlength="12"></div>
         </div>
         <div class="tools">
-          <button class="btn light sm" id="bExample" type="button">Carregar exemplo (Flamengo)</button>
-          <button class="btn light sm" id="bSave" type="button">Salvar arquivo</button>
-          <button class="btn light sm" id="bOpen" type="button">Abrir arquivo</button>
-          <input type="file" id="fileIn" accept=".json,application/json" hidden>
-          <button class="btn light sm" id="bCsv" type="button">Baixar indicadores (CSV)</button>
-          <button class="btn light sm" id="bPdf" type="button">Imprimir / PDF</button>
-          <button class="btn light sm" id="bClear" type="button">Limpar tudo</button>
+          <button class="btn light sm" id="bExample" type="button">Carregar exemplo</button>
         </div>
       </div>
       <div class="tabs" role="tablist" aria-label="Etapas">
@@ -430,9 +424,9 @@ footer a{color:#cbd5e1}
       <ul class="checks">
         <li>Check-up inicial com semáforo (OK / ATENÇÃO)</li>
         <li>Mais de 120 indicadores em 16 blocos, com referência e explicação</li>
-        <li>Verificações: o balanço fecha? o caixa da DFC bate com o do balanço? Se não, os indicadores ficam travados até a correção</li>
+        <li>Cada demonstrativo libera os seus indicadores assim que é preenchido (e, no balanço e na DFC, só se estiver consistente)</li>
         <li>Custo de capital, WACC, spread e EVA com premissas editáveis</li>
-        <li>Salvar o trabalho, baixar CSV e imprimir em PDF</li>
+        <li>Painel geral com gráficos e atalhos para cada bloco</li>
       </ul>
     </div>
     <div class="cta-band" style="flex-direction:column;align-items:flex-start">
@@ -513,8 +507,8 @@ const DRE_ROWS = [
   {k:'ga', l:'Despesas Administrativas', h:'Gerais e administrativas. Positivo.'},
   {k:'od', l:'Outras Despesas', h:'Itens fora da operação principal (perdas, baixas, provisões). Positivo.'},
   {k:'orr', l:'Outras Receitas', h:'Ganhos pontuais ou fora da operação (venda de imobilizado, de atletas, reversões). Positivo.'},
-  {k:'da', l:'Depreciação e Amortização', h:'Já está dentro dos custos e despesas acima; é somada de volta ao EBITDA. Positivo. Se ela só aparece na DFC, deixe em branco aqui e preencha na DFC: o Fluxe usa a da DFC.', ph:'da_dfc'},
   {c:'ebitda', l:'EBITDA', f:s => s.ebitda, top:1, tone:'b', h:'Lucro Bruto − Vendas − Administrativas − Outras Despesas + Outras Receitas + D&A'},
+  {k:'da', l:'Depreciação e Amortização', h:'Já está dentro dos custos e despesas acima: por isso entra somada no EBITDA e é subtraída para chegar ao EBIT. Positivo. Se ela só aparece na DFC, deixe em branco aqui e preencha na DFC: o Fluxe usa a da DFC.', ph:'da_dfc'},
   {c:'ebit', l:'EBIT', f:s => s.ebit, top:1, tone:'b', h:'EBITDA − D&A'},
   {k:'df', l:'Despesas Financeiras', h:'Juros, variação cambial passiva, encargos. Positivo.'},
   {k:'rf', l:'Receitas Financeiras', h:'Rendimentos de aplicações, juros ativos. Positivo.'},
@@ -566,7 +560,7 @@ const BP_ROWS = [
 ];
 const DFC_ROWS = [
   {c:'fco', l:'Atividades operacionais (FCO)', f:s => s.fco, grp:'n'},
-  {c:'d_ll', l:'Lucro Líquido', f:s => s.ll, h:'Vem da DRE.', subrow:1},
+  {k:'ll_in', l:'Lucro Líquido', h:'Vem da DRE. Se você não preencheu a DRE, informe aqui o lucro líquido do período (ele abre o FCO).', ph:'ll', subrow:1},
   {k:'da_dfc', l:'Depreciação e Amortização', h:'Deixe em branco para usar a D&A da DRE. Se ela só aparece na DFC, informe aqui (positivo): ela também alimenta o EBITDA da DRE.', ph:'da'},
   {k:'outaj', l:'Outros Ajustes de Não Caixa', h:'Provisões, resultado de equivalência, ganho na venda de ativos (negativo), juros e variações cambiais não pagos etc.'},
   {k:'vcr', l:'Variação de Contas a Receber', h:'Aumento do saldo = negativo (consumiu caixa).'},
@@ -600,10 +594,13 @@ const DIR = {
 };
 /* ------------------------------------------------------------------ cálculo dos demonstrativos */
 let ST = [{}, {}];
+let DREHAS = false, DFCHAS = false;
 function calcStatements(){
+  DFCHAS = ['ll_in','da_dfc','outaj','vcr','vest','vforn','voutros','jurosfco','irpago','capex','vendaimob','aplicfin','outinv','capt','pagemp','jurosfin','pagarr','divid','aportes','cambial','cxini'].some(k => [0, 1].some(y => getV(k, y) !== 0));
+  DREHAS = ['rb','imp','dev','cmv','dv','ga','od','orr','da','df','rf','ir'].some(k => [0, 1].some(y => getV(k, y) !== 0));
   for (const y of [0, 1]) {
     const g = k => getV(k, y), s = {};
-    ['rb','imp','dev','cmv','dv','ga','od','orr','da','df','rf','ir','caixa','cxr','instr','cr','est','imprec','antec','avenda','ocirc','crlp','invest','imobb','depac','intang','oncirc','forn','emp','arr','obrig','adiant','divpag','opc','fornlp','emplp','arrlp','obriglp','opnc','capsoc','reservas','resacum','ajustes','da_dfc','outaj','vcr','vest','vforn','voutros','jurosfco','irpago','capex','vendaimob','aplicfin','outinv','capt','pagemp','jurosfin','pagarr','divid','aportes','cambial'].forEach(k => s[k] = g(k));
+    ['rb','imp','dev','cmv','dv','ga','od','orr','da','df','rf','ir','caixa','cxr','instr','cr','est','imprec','antec','avenda','ocirc','crlp','invest','imobb','depac','intang','oncirc','forn','emp','arr','obrig','adiant','divpag','opc','fornlp','emplp','arrlp','obriglp','opnc','capsoc','reservas','resacum','ajustes','da_dfc','outaj','vcr','vest','vforn','voutros','jurosfco','irpago','capex','vendaimob','aplicfin','outinv','capt','pagemp','jurosfin','pagarr','divid','aportes','cambial','ll_in'].forEach(k => s[k] = g(k));
     s.da_dre = s.da; s.da = s.da_dre !== 0 ? s.da_dre : s.da_dfc; s.da_fc = s.da_dfc !== 0 ? s.da_dfc : s.da_dre;
     s.rl = s.rb - s.imp - s.dev;
     s.lb = s.rl - s.cmv;
@@ -622,7 +619,8 @@ function calcStatements(){
     s.pl = s.capsoc + s.reservas + s.resacum + s.ajustes;
     s.tpp = s.pl + s.pnc + s.pc;
     s.db = s.emp + s.arr + s.emplp + s.arrlp;
-    s.fco = s.ll + s.da_fc + s.outaj + s.vcr + s.vest + s.vforn + s.voutros + s.jurosfco + s.irpago;
+    s.ll_fc = DREHAS ? s.ll : s.ll_in;
+    s.fco = s.ll_fc + s.da_fc + s.outaj + s.vcr + s.vest + s.vforn + s.voutros + s.jurosfco + s.irpago;
     s.fci = s.capex + s.vendaimob + s.aplicfin + s.outinv;
     s.fcf = s.capt + s.pagemp + s.jurosfin + s.pagarr + s.divid + s.aportes;
     s.dcaixa = s.fco + s.fci + s.fcf + s.cambial;
@@ -632,7 +630,6 @@ function calcStatements(){
   ST[0].cxfim = ST[0].cxini + ST[0].dcaixa;
   ST[1].cxini = ST[0].cxfim;
   ST[1].cxfim = ST[1].cxini + ST[1].dcaixa;
-  ST.forEach(s => { s.ll_dfc = s.ll; });
 }
 const TOL = 0.5;
 function checks(){
@@ -642,11 +639,38 @@ function checks(){
     bp, dfc,
     bpOk: bp.every(d => Math.abs(d) <= TOL),
     dfcOk: dfc.every(d => Math.abs(d) <= TOL),
+    hasDRE: DREHAS,
     hasBP: [0, 1].some(y => ST[y].ativo !== 0 || ST[y].tpp !== 0),
-    hasDFC: [0, 1].some(y => ST[y].dcaixa !== 0 || ST[y].cxini !== 0 || ST[y].cxfim !== 0)
+    hasDFC: DFCHAS
   };
 }
-const hasData = () => ST.some(s => s.rb || s.ativo || s.dcaixa);
+const hasData = c => c.hasDRE || c.hasBP || c.hasDFC;
+/* cada demonstrativo libera os seus indicadores: DRE preenchida; BP fechado; DFC consistente com o caixa do BP (se houver BP) */
+let VALID = {dre: false, bp: false, dfc: false};
+function validOf(c){ return {dre: c.hasDRE, bp: c.hasBP && c.bpOk, dfc: c.hasDFC && (!c.hasBP || c.dfcOk)}; }
+const DRE_F = new Set(['rb','imp','dev','rl','cmv','lb','dv','ga','od','orr','da','da_dre','ebitda','ebit','df','rf','lair','ir','ll']);
+const DFC_F = new Set(['outaj','vcr','vest','vforn','voutros','jurosfco','irpago','capex','vendaimob','aplicfin','outinv','capt','pagemp','jurosfin','pagarr','divid','aportes','cambial','da_dfc','da_fc','fco','fci','fcf','dcaixa','cxini','cxfim','ll_fc','ll_in']);
+const stOf = k => DRE_F.has(k) ? 'dre' : DFC_F.has(k) ? 'dfc' : 'bp';
+/* dependências (quais demonstrativos cada indicador usa), descobertas rodando a fórmula com valores de teste */
+const DEPID = {};
+function depsOfFn(fn){
+  const out = new Set(), real = ST;
+  const modes = [k => 1 + (k.length * 7 + k.charCodeAt(0)) % 11, k => -(1 + (k.length * 5 + k.charCodeAt(k.length - 1)) % 9), () => 0];
+  for (const m of modes) {
+    const mk = () => new Proxy({}, {get: (o, k) => { if (typeof k !== 'string') return undefined; out.add(stOf(k)); return m(k); }});
+    ST = [mk(), mk()];
+    try { fn(ST[1], 1, id2 => { depsOfId(id2).forEach(x => out.add(x)); return m(id2); }); } catch (e) {}
+    ST = real;
+  }
+  return out;
+}
+function depsOfId(id){
+  if (DEPID[id]) return DEPID[id];
+  DEPID[id] = new Set();                       // trava contra ciclos
+  return DEPID[id] = F[id] ? depsOfFn(F[id]) : new Set();
+}
+const availFn = fn => [...depsOfFn(fn)].every(x => VALID[x]);
+const avail = id => [...depsOfId(id)].every(x => VALID[x]);
 
 /* ------------------------------------------------------------------ indicadores: fórmulas */
 const F = {
@@ -804,6 +828,7 @@ function limVal(l){
 }
 function statusOf(id){
   const it = ITEM[id], v = VAL[1][id];
+  if (!avail(id)) return 'NA';
   if (it.special === 'fleuriet') return (v === 'Tipo I' || v === 'Tipo II') ? 'OK' : (typeof v === 'string' && v.startsWith('Tipo')) ? 'AT' : 'NA';
   if (!isN(v)) return 'NA';
   const lo = limVal(it.lo), hi = limVal(it.hi);
@@ -937,8 +962,9 @@ function refreshStatements(){
   $$('[data-vd]').forEach(td => { const k = td.dataset.vd; td.className = 'v col-var' + dcls(k, valK(k, 0), valK(k, 1)); td.textContent = plain(valK(k, 1) - valK(k, 0)); });
   // D&A: valor emprestado da outra tela aparece como dica cinza
   $$('input.num[data-ph]').forEach(inp => {
-    const y = +inp.dataset.y, other = getV(inp.dataset.ph, y), mine = getV(inp.dataset.k, y);
-    const from = inp.dataset.ph === 'da' ? 'DRE' : 'DFC';
+    const y = +inp.dataset.y, isLL = inp.dataset.ph === 'll', other = isLL ? ST[y].ll : getV(inp.dataset.ph, y), mine = getV(inp.dataset.k, y);
+    const from = inp.dataset.ph === 'dfc' || inp.dataset.ph === 'da_dfc' ? 'DFC' : 'DRE';
+    if (isLL) { inp.disabled = DREHAS; inp.title = DREHAS ? 'Vem da DRE' : ''; if (DREHAS) { inp.placeholder = '= ' + nfIn.format(other) + ' (DRE)'; inp.classList.add('autoph'); return; } }
     if (mine === 0 && other !== 0) { inp.placeholder = '= ' + nfIn.format(other) + ' (' + from + ')'; inp.classList.add('autoph'); }
     else { inp.placeholder = '0'; inp.classList.remove('autoph'); }
   });
@@ -947,9 +973,9 @@ function refreshStatements(){
   const c = checks();
   const box = (ok, has, okMsg, badMsg) => !has ? '' : ok ? `<div class="note good" style="margin-top:14px">✓ ${okMsg}</div>` : `<div class="note bad" style="margin-top:14px">✗ ${badMsg}</div>`;
   $('#chk-bp').innerHTML = box(c.bpOk, c.hasBP, 'Balanço fechado: Ativo = Passivo + PL nos dois anos.',
-    `O balanço não fecha. Diferença (Ativo − Passivo − PL): ${yl(0)} = ${nf0.format(c.bp[0])}; ${yl(1)} = ${nf0.format(c.bp[1])}. Revise o balanço. Enquanto ele não fechar, nenhum indicador é exibido.`);
+    `O balanço não fecha. Diferença (Ativo − Passivo − PL): ${yl(0)} = ${nf0.format(c.bp[0])}; ${yl(1)} = ${nf0.format(c.bp[1])}. Revise o balanço. Enquanto ele não fechar, os indicadores que dependem dele ficam ocultos.`);
   $('#chk-dfc').innerHTML = box(c.dfcOk, c.hasDFC && c.hasBP, 'Caixa final da DFC = Caixa e Equivalentes do balanço, nos dois anos.',
-    `O caixa final da DFC não bate com o Caixa e Equivalentes do balanço. Diferença (DFC − Balanço): ${yl(0)} = ${nf0.format(c.dfc[0])}; ${yl(1)} = ${nf0.format(c.dfc[1])}. Revise a DFC (sinais, caixa inicial e variações). Enquanto ela não bater com o balanço, nenhum indicador é exibido.`);
+    `O caixa final da DFC não bate com o Caixa e Equivalentes do balanço. Diferença (DFC − Balanço): ${yl(0)} = ${nf0.format(c.dfc[0])}; ${yl(1)} = ${nf0.format(c.dfc[1])}. Revise a DFC (sinais, caixa inicial e variações). Enquanto ela não bater com o balanço, os indicadores que dependem dela ficam ocultos.`);
   const daw = [0, 1].filter(y => ST[y].da_dre !== 0 && ST[y].da_dfc !== 0 && Math.abs(ST[y].da_dre - ST[y].da_dfc) > TOL);
   $('#chk-dfc').innerHTML += daw.length ? `<div class="note warn" style="margin-top:10px">⚠ A depreciação informada na DRE e a da DFC são diferentes em ${daw.map(y => yl(y)).join(' e ')}. O EBITDA usa a da DRE; o fluxo de caixa operacional usa a da DFC.</div>` : '';
   $('#top-bp').innerHTML = c.hasBP && !c.bpOk ? `<div class="note bad"><b>✗ Inconsistência no balanço:</b> Ativo ≠ Passivo + PL (diferença de ${nf0.format(c.bp[0])} em ${esc(yl(0))} e ${nf0.format(c.bp[1])} em ${esc(yl(1))}). Revise os valores; a verificação completa está no fim da tabela.</div>` : '';
@@ -1059,12 +1085,15 @@ function donut(parts, title){
 /* gráfico de abertura de cada bloco: indicador por id (VAL) ou função sobre o demonstrativo */
 const cv = (x, y) => typeof x === 'function' ? x(ST[y], y) : VAL[y][x];
 function mkBars(title, cats, defs, fmt, opt, only1){
+  const keep = defs.map((d, i) => i).filter(i => typeof defs[i] === 'function' ? availFn(defs[i]) : avail(defs[i]));
+  if (!keep.length) return '';
+  cats = keep.map(i => cats[i]); defs = keep.map(i => defs[i]);
   return barChart(cats, only1 ? null : defs.map(d => cv(d, 0)), defs.map(d => cv(d, 1)), title, fmt, opt);
 }
 function blockCharts(n){
   const s = ST[1], a = yl(1);
   switch (n) {
-    case 2: return [
+    case 2: return !VALID.bp ? [] : [
       donut([{l: 'Capital próprio (PL)', v: s.pl, c: PAL.blue}, {l: 'Terceiros não onerosos', v: s.tpp - s.pl - s.db, c: PAL.gray}, {l: 'Terceiros onerosos', v: s.db, c: PAL.navy}], `Como a empresa se financia (${esc(a)})`),
       donut([{l: 'Circulante', v: s.ac, c: COL.g}, {l: 'Realizável LP', v: s.rlpt, c: COL.y}, {l: 'Permanente', v: s.permt, c: COL.b}], `Onde o dinheiro está aplicado (${esc(a)})`)];
     case 3: return [mkBars('Para onde vai cada R$ 1,00 de receita líquida', ['CMV', 'Vendas', 'Adm.', 'Desp. fin.', 'Mg. EBITDA', 'Mg. líq.'], ['cmv', 'dv', 'ga', 'df_rec', 'm_ebitda', 'm_liq'], 'pct')];
@@ -1078,7 +1107,7 @@ function blockCharts(n){
     case 11: return [mkBars('Retornos', ['ROE', 'ROA', 'ROCE', 'ROIC'], ['roe', 'roa', 'roce', 'roic'], 'pct')];
     case 12: return [mkBars('O ativo permanente é financiado por quem?', ['Ativo permanente', 'PL', 'PL + passivo não circ.'], [x => x.permt, x => x.pl, x => x.pl + x.pnc], 'num')];
     case 13: return [mkBars('CAPEX, depreciação e caixa operacional', ['CAPEX', 'D&A', 'FCO'], ['capex', x => x.da, 'fco'], 'num')];
-    case 14: return [donut([{l: 'CMV', v: s.cmv, c: PAL.blue}, {l: 'Vendas', v: s.dv, c: PAL.sky}, {l: 'Adm.', v: s.ga, c: PAL.gray}, {l: 'Outras', v: s.od, c: PAL.light}], `Para onde vai o opex (${esc(a)})`)];
+    case 14: return !VALID.dre ? [] : [donut([{l: 'CMV', v: s.cmv, c: PAL.blue}, {l: 'Vendas', v: s.dv, c: PAL.sky}, {l: 'Adm.', v: s.ga, c: PAL.gray}, {l: 'Outras', v: s.od, c: PAL.light}], `Para onde vai o opex (${esc(a)})`)];
     case 15: return [mkBars('Lucro, dividendos e outras mudanças no PL', ['Lucro líq.', 'Dividendos', 'Outros no PL'], [x => x.ll, x => -x.divid, 'outros_pl'], 'num')];
     case 16: return [mkBars('Retorno x custo do dinheiro', ['Ke', 'Kd líq.', 'WACC', 'ROIC líq.'], ['ke', 'kd_at', 'wacc', 'roic_at'], 'pct')];
   }
@@ -1108,18 +1137,26 @@ const blockOfId = id => BID[id] ? 'b' + BID[id].num : '';
 const blockNum = id => BID[id] ? BID[id].num + ' (' + BID[id].title + ')' : '';
 function renderAnalysis(c){
   const p = $('#p-an');
-  if (!hasData()) { p.innerHTML = `<div class="note">Preencha a DRE, o Balanço e a DFC, ou <a href="#app" id="exLink" class="go">carregue o exemplo do Flamengo</a>, para ver a análise.</div>`; const l = $('#exLink'); if (l) l.onclick = e => { e.preventDefault(); loadExample(); }; return; }
+  if (!hasData(c)) { p.innerHTML = `<div class="note">Preencha a DRE, o Balanço ou a DFC (cada um libera os seus indicadores), ou <a href="#app" id="exLink" class="go">carregue o exemplo</a>, para ver a análise.</div>`; const l = $('#exLink'); if (l) l.onclick = e => { e.preventDefault(); loadExample(); }; return; }
   const s0 = ST[0], s1 = ST[1];
   let h = '';
+  VALID = validOf(c);
   const bl = blocked(c);
-  if (bl.length) {
-    p.innerHTML = `<div class="note bad" style="font-size:15px"><b>Indicadores bloqueados.</b> Corrija o erro abaixo: enquanto ele existir, nenhum indicador é exibido, porque os números não seriam confiáveis.</div>` +
-      bl.map(x => `<div class="note bad">✗ ${x.msg} <button class="btn light sm" type="button" data-go="${x.tab}" style="margin-left:8px">Ir para ${x.tab === 'bp' ? 'o Balanço' : 'a DFC'} →</button></div>`).join('');
+  const NAMES = {dre: 'a DRE', bp: 'o Balanço', dfc: 'a DFC'}, NAMES2 = {dre: 'DRE', bp: 'Balanço', dfc: 'DFC'};
+  let top = '';
+  if (bl.length) top += `<div class="note bad" style="font-size:15px"><b>Alguns indicadores estão ocultos.</b> Corrija o erro abaixo para liberá-los.</div>` +
+    bl.map(x => `<div class="note bad">✗ ${x.msg} <button class="btn light sm" type="button" data-go="${x.tab}" style="margin-left:8px">Ir para ${x.tab === 'bp' ? 'o Balanço' : 'a DFC'} →</button></div>`).join('');
+  const shown = ['dre', 'bp', 'dfc'].filter(k => VALID[k]), notFilled = ['dre', 'bp', 'dfc'].filter(k => !({dre: c.hasDRE, bp: c.hasBP, dfc: c.hasDFC})[k]);
+  if (shown.length && notFilled.length) top += `<div class="note">Mostrando os indicadores de: <b>${shown.map(k => NAMES2[k]).join(' + ')}</b>. Preencha ${notFilled.map(k => NAMES[k]).join(' e ')} para liberar ${notFilled.length > 1 ? 'os demais' : 'o restante'}.</div>`;
+  if (!shown.length) {
+    p.innerHTML = top;
     $$('#p-an [data-go]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.go)));
     return;
   }
+  h += top;
   h += '<div id="painel" class="anc"></div>';
   const alerts = countAlerts();
+  const VB = META.blocks.filter(blockVisible);
   const dI = (kind, a, b, good = 'up') => {
     if (!isN(a) || !isN(b)) return {t: '—', c: ''};
     const d = b - a, ar = d >= 0 ? '▲ ' : '▼ ';
@@ -1132,17 +1169,18 @@ function renderAnalysis(c){
     return {t: tx + ' vs. ano anterior', c: d === 0 ? '' : ((d > 0) === (good === 'up') ? 'pos' : 'neg')};
   };
   const K = (label, val, d, neg, note) => kpiCard(label, val, d.t, d.c, neg ? 'neg' : '', note);
+  const kc = (ids, fn) => ids.every(avail) ? fn() : '';
   h += `<div class="kpis4">` +
-    K('Receita Líquida (RL)', nf0.format(Math.round(s1.rl)), dI('pct', s0.rl, s1.rl)) +
-    K('Margem Bruta', fmtVal('pct', VAL[1].mb), dI('pp', VAL[0].mb, VAL[1].mb)) +
-    K('Margem Líquida', fmtVal('pct', VAL[1].m_liq), dI('pp', VAL[0].m_liq, VAL[1].m_liq), isN(VAL[1].m_liq) && VAL[1].m_liq < 0) +
-    K('Capital Circ. Líquido (CCL)', nf0.format(Math.round(VAL[1].ccl)), dI('abs', VAL[0].ccl, VAL[1].ccl), VAL[1].ccl < 0) +
-    K('Patrimônio Líquido', nf0.format(Math.round(s1.pl)), dI('pct', s0.pl, s1.pl), s1.pl < 0) +
-    K('Fluxo de Caixa Livre (FCL)', nf0.format(Math.round(VAL[1].fcl)), dI('abs', VAL[0].fcl, VAL[1].fcl), VAL[1].fcl < 0) +
-    K('Liquidez Corrente', fmtVal('x', VAL[1].lc), dI('x', VAL[0].lc, VAL[1].lc)) +
-    K('CMV', nf0.format(Math.round(s1.cmv)), dI('pct', s0.cmv, s1.cmv, 'down'), false, isN(VAL[1].cmv) ? fmtVal('pct', VAL[1].cmv) + ' da RL' : '') +
-    K('Total SG&A', nf0.format(Math.round(s1.dv + s1.ga)), dI('pct', s0.dv + s0.ga, s1.dv + s1.ga, 'down'), false, isN(VAL[1].sga) ? fmtVal('pct', VAL[1].sga) + ' da RL' : '') +
-    K('Dívida Bruta', nf0.format(Math.round(VAL[1].db)), dI('pct', VAL[0].db, VAL[1].db, 'down')) + `</div>`;
+    kc(['c_rl'], () => K('Receita Líquida (RL)', nf0.format(Math.round(s1.rl)), dI('pct', s0.rl, s1.rl))) +
+    kc(['mb'], () => K('Margem Bruta', fmtVal('pct', VAL[1].mb), dI('pp', VAL[0].mb, VAL[1].mb))) +
+    kc(['m_liq'], () => K('Margem Líquida', fmtVal('pct', VAL[1].m_liq), dI('pp', VAL[0].m_liq, VAL[1].m_liq), isN(VAL[1].m_liq) && VAL[1].m_liq < 0)) +
+    kc(['ccl'], () => K('Capital Circ. Líquido (CCL)', nf0.format(Math.round(VAL[1].ccl)), dI('abs', VAL[0].ccl, VAL[1].ccl), VAL[1].ccl < 0)) +
+    kc(['c_pl'], () => K('Patrimônio Líquido', nf0.format(Math.round(s1.pl)), dI('pct', s0.pl, s1.pl), s1.pl < 0)) +
+    kc(['fcl'], () => K('Fluxo de Caixa Livre (FCL)', nf0.format(Math.round(VAL[1].fcl)), dI('abs', VAL[0].fcl, VAL[1].fcl), VAL[1].fcl < 0)) +
+    kc(['lc'], () => K('Liquidez Corrente', fmtVal('x', VAL[1].lc), dI('x', VAL[0].lc, VAL[1].lc))) +
+    kc(['cmv'], () => K('CMV', nf0.format(Math.round(s1.cmv)), dI('pct', s0.cmv, s1.cmv, 'down'), false, isN(VAL[1].cmv) ? fmtVal('pct', VAL[1].cmv) + ' da RL' : '')) +
+    kc(['sga'], () => K('Total SG&A', nf0.format(Math.round(s1.dv + s1.ga)), dI('pct', s0.dv + s0.ga, s1.dv + s1.ga, 'down'), false, isN(VAL[1].sga) ? fmtVal('pct', VAL[1].sga) + ' da RL' : '')) +
+    kc(['db'], () => K('Dívida Bruta', nf0.format(Math.round(VAL[1].db)), dI('pct', VAL[0].db, VAL[1].db, 'down'))) + `</div>`;
   const SEM = {g: '#22C55E', y: '#FACC15', r: '#EF4444'};   // semáforo do velocímetro
   const gauge = (v, prev) => {
     const cx = 110, cy = 108, r = 80, pt = q => [cx - r * Math.cos(Math.PI * q), cy - r * Math.sin(Math.PI * q)];
@@ -1157,17 +1195,19 @@ function renderAnalysis(c){
       `<text x="${cx}" y="${cy + 26}" text-anchor="middle" font-size="21" font-weight="800" fill="${zc}">${isN(v) ? nf1.format(v * 100) + '%' : 'n/a'}</text></svg>` +
       `<div class="gnote"><span class="${d.c}" style="font-weight:600">${d.t}</span></div></div>`;
   };
-  h += `<div class="dash3">` + miniHTML(1, false) + `<div class="quad">` +
-    donut([{l: 'Capital próprio (PL)', v: s1.pl, c: PAL.blue}, {l: 'Capital de terceiros', v: s1.tpp - s1.pl, c: PAL.gray}], `Estrutura do capital (${esc(yl(1))})`) +
-    gauge(VAL[1].endiv, VAL[0].endiv) +
-    dualBars('Giro, alavancagem e retornos', [
-      {fmt: 'x', cats: [{l: 'Giro do ativo', a: VAL[0].giro, b: VAL[1].giro}, {l: 'Alavancagem', a: VAL[0].alav, b: VAL[1].alav}]},
-      {fmt: 'pct', cats: [{l: 'ROE', a: VAL[0].roe, b: VAL[1].roe}, {l: 'ROCE', a: VAL[0].roce, b: VAL[1].roce}]}], {w: 720, h: 190}) + `</div></div>`;
-  h += `<div class="blocknav" id="bnav"><a href="#painel" data-jump="painel" class="pin on" title="Painel geral">Painel</a>` + META.blocks.map(b => `<a href="#b${b.num}" data-jump="b${b.num}" title="${esc(b.title)}" class="${blockHasBad(b) ? 'has-bad' : ''}">${b.num} · ${esc(SHORT[b.num] || b.title)}</a>`).join('') + `</div>`;
+  if (VALID.bp) {
+    const dgrp = [{fmt: 'x', cats: [{id: 'giro', l: 'Giro do ativo'}, {id: 'alav', l: 'Alavancagem'}]}, {fmt: 'pct', cats: [{id: 'roe', l: 'ROE'}, {id: 'roce', l: 'ROCE'}]}]
+      .map(g => ({fmt: g.fmt, cats: g.cats.filter(x => avail(x.id)).map(x => ({l: x.l, a: VAL[0][x.id], b: VAL[1][x.id]}))})).filter(g => g.cats.length);
+    h += `<div class="dash3">` + miniHTML(1, false) + `<div class="quad">` +
+      donut([{l: 'Capital próprio (PL)', v: s1.pl, c: PAL.blue}, {l: 'Capital de terceiros', v: s1.tpp - s1.pl, c: PAL.gray}], `Estrutura do capital (${esc(yl(1))})`) +
+      gauge(VAL[1].endiv, VAL[0].endiv) +
+      (dgrp.length ? dualBars('Giro, alavancagem e retornos', dgrp, {w: 720, h: 190}) : '') + `</div></div>`;
+  }
+  h += `<div class="blocknav" id="bnav"><a href="#painel" data-jump="painel" class="pin on" title="Painel geral">Painel</a>` + VB.map(b => `<a href="#b${b.num}" data-jump="b${b.num}" title="${esc(b.title)}" class="${blockHasBad(b) ? 'has-bad' : ''}">${b.num} · ${esc(SHORT[b.num] || b.title)}</a>`).join('') + `</div>`;
   h += `<div class="opts"><label><input type="checkbox" id="showAll" ${showAll ? 'checked' : ''}> Mostrar todas as explicações</label><span>Clique em um indicador para ler a explicação. Ponto vermelho no menu = bloco com algum indicador em ATENÇÃO.</span></div>`;
-  META.blocks.forEach(b => {
-    h += `<section class="block ${b.num === 1 ? 'first' : ''}" id="b${b.num}" style="padding:0"><header><h3><span>${b.num}</span> · ${esc(b.title)}</h3><p>${esc(b.question)}</p></header>${(() => { const cs = blockCharts(b.num); return cs.length ? `<div class="bcharts">${cs.join('')}</div>` : ''; })()}<div class="scroll"><table class="ind"><thead><tr><th>Indicador</th><th>${esc(yl(0))}</th><th>${esc(yl(1))}</th><th>Var.</th><th>Melhor</th><th>Situação</th><th>Referência</th></tr></thead><tbody>`;
-    b.items.forEach(it => {
+  VB.forEach(b => {
+    h += `<section class="block ${b.num === 1 ? 'first' : ''}" id="b${b.num}" style="padding:0"><header><h3><span>${b.num}</span> · ${esc(b.title)}</h3><p>${esc(b.question)}</p></header>${(() => { const cs = blockCharts(b.num).filter(Boolean); return cs.length ? `<div class="bcharts">${cs.join('')}</div>` : ''; })()}<div class="scroll"><table class="ind"><thead><tr><th>Indicador</th><th>${esc(yl(0))}</th><th>${esc(yl(1))}</th><th>Var.</th><th>Melhor</th><th>Situação</th><th>Referência</th></tr></thead><tbody>`;
+    visItems(b).forEach(it => {
       if (it.sub) h += `<tr class="sub"><td colspan="7">${esc(it.sub)}</td></tr>`;
       else if (it.alerts) h += `<tr class="alerts"><td class="l" style="font-weight:700">Indicadores em ATENÇÃO neste check-up</td><td>—</td><td>${alerts.t}</td><td></td><td></td><td></td><td class="ref">Só conta indicadores com referência numérica, no ano atual.</td></tr>`;
       else if (it.link) h += rowHTML({label: it.label, link: true, question: it.question}, null, it.src);
@@ -1178,6 +1218,14 @@ function renderAnalysis(c){
   p.innerHTML = h;
   bindAnalysis();
 }
+function visItems(b){
+  const ok = it => it.sub || it.alerts ? true : avail(it.link ? it.src : it.id);
+  const out = [];
+  b.items.forEach(it => { if (ok(it)) out.push(it); });
+  // remove subtítulos sem linha depois deles
+  return out.filter((it, i) => !it.sub || (out[i + 1] && !out[i + 1].sub));
+}
+function blockVisible(b){ return b.items.some(it => { const id = it.link ? it.src : it.id; return id && !it.input && avail(id) && depsOfId(id).size; }); }
 function blocked(c){
   const out = [];
   if (c.hasBP && !c.bpOk) out.push({tab: 'bp', msg: `<b>O balanço não fecha.</b> Diferença (Ativo − Passivo − PL): ${esc(yl(0))} = ${nf0.format(c.bp[0])}; ${esc(yl(1))} = ${nf0.format(c.bp[1])}. Revise o balanço.`});
@@ -1293,11 +1341,6 @@ document.addEventListener('DOMContentLoaded', () => {
     persist(); refresh(true);
   });
   $('#bExample').onclick = loadExample; $('#heroExample').onclick = loadExample; $('#cta2').onclick = loadExample;
-  $('#bSave').onclick = saveFile; $('#bOpen').onclick = () => $('#fileIn').click();
-  $('#fileIn').onchange = e => { if (e.target.files[0]) openFile(e.target.files[0]); e.target.value = ''; };
-  $('#bCsv').onclick = () => { calcStatements(); calcIndicators(); exportCsv(); };
-  $('#bPdf').onclick = () => { calcStatements(); calcIndicators(); renderAnalysis(checks()); window.print(); };
-  $('#bClear').onclick = clearAll;
   refresh();
 });
 </script>
