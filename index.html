@@ -216,11 +216,11 @@ td.in input.num{min-width:84px;background:#FFF7DB;border-color:#FCD34D}
 .alerts td{font-weight:700;background:#F8FBFF}
 .go{color:var(--blue);font-weight:600;cursor:pointer}
 /* gráficos por bloco */
-.bcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,250px));gap:12px;padding:14px 16px 0}
-.bcharts{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px;padding:14px 16px 6px}
-.bcharts:has(>:nth-child(2):last-child),.bcharts:has(>:only-child){grid-template-columns:repeat(auto-fit,minmax(235px,380px))}
-.kpi4.yc{justify-content:flex-start}
-.kpi4.yc .kh{min-height:32px}
+.bcards{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:12px;padding:14px 16px 0}
+.bcharts{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:12px;padding:14px 16px 6px}
+.bmix{display:grid;grid-template-columns:minmax(0,.8fr) repeat(var(--n),minmax(0,1fr));gap:12px;padding:14px 16px 6px}
+.bcol{display:flex;flex-direction:column;gap:12px}
+.bcol .kpi4{flex:1}
 .cap{margin:6px 0 0;font-size:11.5px;color:#64748B}
 .kh{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
 .kh small{padding-top:2px}
@@ -276,6 +276,7 @@ footer a{color:#cbd5e1}
   .kpi4.yc .kh{min-height:0}
   .ytb button{padding:2px 6px}
   .bcards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .bcharts,.bmix{grid-template-columns:minmax(0,1fr)}
   .dash3{grid-template-columns:1fr}
   .charts{grid-template-columns:1fr}
   .fields{grid-template-columns:1fr 1fr}
@@ -1072,6 +1073,7 @@ function mkBars(title, cats, defs, fmt, opt, only1){
   cats = keep.map(i => cats[i]); defs = keep.map(i => defs[i]);
   return barChart(cats, only1 ? null : defs.map(d => cv(d, 0)), defs.map(d => cv(d, 1)), title, fmt, opt);
 }
+let MW = 300;
 const fk = f => f === 'pct2' ? 'pct' : f;
 /* grupo de barras 2024 x 2025 para um indicador (id) ou função sobre o demonstrativo */
 function pg(def, label, fmt){
@@ -1088,15 +1090,14 @@ function pg(def, label, fmt){
 const merge = (...gs) => { gs = gs.filter(Boolean); if (!gs.length) return null; return {fmt: gs[0].fmt, refs: gs[0].refs, cap: '', cats: gs.flatMap(g => g.cats)}; };
 function mini(title, groups, opt = {}){
   groups = groups.filter(Boolean); if (!groups.length) return '';
-  const cap = [...new Set(groups.map(g => g.cap).filter(Boolean))].join(' · ');
-  return dualBars(title, groups, Object.assign({w: 300, h: 200, fs: 10.5, cap}, opt));
+  return dualBars(title, groups, Object.assign({w: MW, h: 200, fs: 10.5}, opt));
 }
 const one = (title, def, label, fmt) => mini(title, [pg(def, label || '', fmt)]);
 function ytw(f){
   return `<div class="ytw"><span class="ytb"><button type="button" data-yt="1" class="on">${esc(yl(1))}</button><button type="button" data-yt="0">${esc(yl(0))}</button></span><div class="yv" data-y="1">${f(1)}</div><div class="yv" data-y="0" hidden>${f(0)}</div></div>`;
 }
 function stackedPair(title, parts){
-  const W = 300, H = 215, y0 = 26, ih = 150, cw = 92, xs = [46, 162];
+  const W = MW, H = 215, y0 = 26, ih = 150, cw = Math.min(92, W * .3), xs = [W / 2 - cw - 12, W / 2 + 12];
   const tot = [0, 1].map(k => parts.reduce((s, p) => s + Math.max(0, p[k ? 'b' : 'a']), 0));
   if (!tot[0] && !tot[1]) return '';
   let g = '';
@@ -1112,24 +1113,25 @@ function stackedPair(title, parts){
   });
   return `<div class="chart"><h5>${title}</h5><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg><div class="lg">${parts.map(p => `<span><i style="background:${p.c}"></i>${esc(p.l)}</span>`).join('')}</div></div>`;
 }
-/* card com botão para alternar o ano */
+/* card: valor do ano atual + variação vs. ano anterior */
 function yCard(label, def, o = {}){
   const isF = typeof def === 'function';
   if (isF ? !availFn(def) : !avail(def)) return '';
   const it = isF ? null : ITEM[def], fmt = o.fmt || (it && fk(it.fmt)) || 'num';
   const v0 = cv(def, 0), v1 = cv(def, 1), d = deltaI(o.kind || 'abs', v0, v1, o.good || 'up');
-  const st = it && !it.input ? statusOf(def) : 'NA', dot = st === 'OK' ? '<i class="sd ok" title="Dentro da referência"></i>' : st === 'AT' ? '<i class="sd at" title="Em atenção"></i>' : '';
-  const note = y => o.note ? o.note(y) : '';
-  const view = (y, v, sub, cls) => `<div class="yv" data-y="${y}"${y ? '' : ' hidden'}><b class="${o.neg && isN(v) && v < 0 ? 'neg' : ''}">${y ? dot : ''}${fmtVal(fmt, v)}${note(y) ? ` <em class="sm">${note(y)}</em>` : ''}</b><span class="${cls}">${sub}</span></div>`;
-  return `<div class="kpi4 yc"><div class="kh"><small>${label}</small><span class="ytb"><button type="button" data-yt="1" class="on">${esc(yl(1))}</button><button type="button" data-yt="0">${esc(yl(0))}</button></span></div>${view(1, v1, d.t, d.c)}${view(0, v0, 'ano anterior', '')}</div>`;
+  const note = o.note ? o.note(1) : '';
+  return `<div class="kpi4"><small>${label}</small><b class="${o.neg && isN(v1) && v1 < 0 ? 'neg' : ''}">${fmtVal(fmt, v1)}${note ? ` <em class="sm">${note}</em>` : ''}</b><span class="${d.c}">${d.t}</span></div>`;
 }
 function statCard(label, id){
   if (!avail(id)) return '';
-  const it = ITEM[id], v = VAL[1][id], st = statusOf(id);
-  return `<div class="kpi4"><small>${label}</small><b>${st === 'OK' ? '<i class="sd ok"></i>' : st === 'AT' ? '<i class="sd at"></i>' : ''}${fmtVal(fk(it.fmt), v)}</b><span class="${st === 'OK' ? 'pos' : st === 'AT' ? 'neg' : ''}">${esc(yl(1))} vs. ${esc(yl(0))} · ${esc(it.ref || '')}</span></div>`;
+  const it = ITEM[id], v = VAL[1][id];
+  return `<div class="kpi4"><small>${label}</small><b>${fmtVal(fk(it.fmt), v)}</b></div>`;
 }
+const NCOL = {1: 4, 2: 3, 3: 3, 5: 2, 6: 4, 8: 3, 9: 3, 10: 3, 11: 4, 12: 3, 13: 3, 14: 3, 15: 3, 16: 2};
 function blockCharts(n){
   const s = ST[1], C = [], G = [];
+  MW = window.innerWidth < 700 ? 300 : Math.round(1040 / (NCOL[n] || 3)) - 34;
+  const mix = n === 10 || n === 16;
   const pc = (id, y) => isN(VAL[y][id]) ? fmtVal('pct', VAL[y][id]) + ' da RL' : '';
   switch (n) {
     case 1:
@@ -1142,7 +1144,7 @@ function blockCharts(n){
         one('Passivo oneroso total', 'db'));
       break;
     case 3: G.push(one('CMV (% da receita líquida)', 'cmv'), one('Margem bruta', 'mb'), one('Total SG&A (% da receita líquida)', 'sga')); break;
-    case 4: C.push(statCard('Crescimento da receita', 'cresc_rec'), statCard('Crescimento do EBITDA', 'cresc_ebitda'), statCard('Crescimento do lucro líquido', 'cresc_ll')); break;
+    case 4: C.push(statCard('Crescimento da receita', 'cresc_rec'), statCard('Crescimento do EBITDA', 'cresc_ebitda'), statCard('Crescimento do lucro líquido', 'cresc_ll'), statCard('Crescimento do ativo', 'cresc_ativo')); break;
     case 5: G.push(one('Outras receitas / receita líquida', 'outrec'), mini('EBITDA com e sem outras receitas', [merge(pg(x => x.ebitda, 'EBITDA', 'num'), pg(x => x.ebitda - x.orr, 'Sem outras rec.', 'num'))])); break;
     case 6: G.push(one('Liquidez corrente', 'lc'), one('Liquidez seca', 'ls'), one('Liquidez imediata', 'li'), one('Liquidez geral', 'lg')); break;
     case 7: C.push(yCard('Capital Circulante Líquido (CCL)', 'ccl', {neg: 1}), yCard('Necessidade de Capital de Giro (NCG)', 'ncg', {good: 'down'}), yCard('Saldo da Tesouraria', 'tes', {neg: 1})); break;
@@ -1156,13 +1158,13 @@ function blockCharts(n){
       if (VALID.dre) G.push(ytw(y => donut([{l: 'CMV', v: ST[y].cmv, c: PAL.blue}, {l: 'Vendas', v: ST[y].dv, c: PAL.sky}, {l: 'Adm.', v: ST[y].ga, c: PAL.gray}, {l: 'Outras', v: ST[y].od, c: PAL.light}], `Para onde vai o opex (${esc(yl(y))})`)));
       G.push(one('OPEX / receita', 'opex_rec'), one('Caixa em dias de OPEX', 'cx_dias_opex'));
       break;
-    case 15: G.push(mkBars('Lucro, dividendos e outras mudanças no PL', ['Lucro líq.', 'Dividendos', 'Outros no PL'], [x => x.ll, x => -x.divid, 'outros_pl'], 'num'), one('Crescimento sustentável (ROE × retenção)', 'sgr'), one('Outros movimentos no PL', 'outros_pl')); break;
+    case 15: G.push(mkBars('Lucro, dividendos e outras mudanças no PL', ['Lucro líq.', 'Dividendos', 'Outros no PL'], [x => x.ll, x => -x.divid, 'outros_pl'], 'num', {w: MW, h: 200}), one('Crescimento sustentável (ROE × retenção)', 'sgr'), one('Outros movimentos no PL', 'outros_pl')); break;
     case 16:
       C.push(yCard('Spread do capital (ROIC − WACC)', 'spread', {kind: 'pp', neg: 1}), yCard('EVA (valor criado)', 'eva', {neg: 1}));
-      G.push(mkBars('Retorno x custo do dinheiro', ['Ke', 'Kd líq.', 'WACC', 'ROIC líq.'], ['ke', 'kd_at', 'wacc', 'roic_at'], 'pct'));
+      G.push(mkBars('Retorno x custo do dinheiro', ['Ke', 'Kd líq.', 'WACC', 'ROIC líq.'], ['ke', 'kd_at', 'wacc', 'roic_at'], 'pct', {w: MW, h: 200}));
       break;
   }
-  return {cards: C.filter(Boolean), charts: G.filter(Boolean)};
+  return {cards: C.filter(Boolean), charts: G.filter(Boolean), mix};
 }
 const pctChg = (a, b) => (a > 0 ? (b / a - 1) : null);
 function deltaI(kind, a, b, good = 'up'){
@@ -1261,7 +1263,7 @@ function renderAnalysis(c){
   h += `<div class="blocknav" id="bnav"><a href="#painel" data-jump="painel" class="pin on" title="Painel geral">Painel</a>` + VB.map(b => `<a href="#b${b.num}" data-jump="b${b.num}" title="${esc(b.title)}" class="${blockHasBad(b) ? 'has-bad' : ''}">${b.num} · ${esc(SHORT[b.num] || b.title)}</a>`).join('') + `</div>`;
   h += `<div class="opts"><label><input type="checkbox" id="showAll" ${showAll ? 'checked' : ''}> Mostrar todas as explicações</label><span>Clique em um indicador para ler a explicação. Ponto vermelho no menu = bloco com algum indicador em ATENÇÃO.</span></div>`;
   VB.forEach(b => {
-    h += `<section class="block ${b.num === 1 ? 'first' : ''}" id="b${b.num}" style="padding:0"><header><h3><span>${b.num}</span> · ${esc(b.title)}</h3><p>${esc(b.question)}</p></header>${(() => { const bc = blockCharts(b.num); return (bc.cards.length ? `<div class="bcards">${bc.cards.join('')}</div>` : '') + (bc.charts.length ? `<div class="bcharts">${bc.charts.join('')}</div>` : ''); })()}<div class="scroll"><table class="ind"><thead><tr><th>Indicador</th><th>${esc(yl(0))}</th><th>${esc(yl(1))}</th><th>Var.</th><th>Melhor</th><th>Situação</th><th>Referência</th></tr></thead><tbody>`;
+    h += `<section class="block ${b.num === 1 ? 'first' : ''}" id="b${b.num}" style="padding:0"><header><h3><span>${b.num}</span> · ${esc(b.title)}</h3><p>${esc(b.question)}</p></header>${(() => { const bc = blockCharts(b.num); if (bc.mix && bc.cards.length && bc.charts.length) return `<div class="bmix" style="--n:${bc.charts.length}"><div class="bcol">${bc.cards.join('')}</div>${bc.charts.join('')}</div>`; return (bc.cards.length ? `<div class="bcards" style="--n:${bc.cards.length}">${bc.cards.join('')}</div>` : '') + (bc.charts.length ? `<div class="bcharts" style="--n:${bc.charts.length}">${bc.charts.join('')}</div>` : ''); })()}<div class="scroll"><table class="ind"><thead><tr><th>Indicador</th><th>${esc(yl(0))}</th><th>${esc(yl(1))}</th><th>Var.</th><th>Melhor</th><th>Situação</th><th>Referência</th></tr></thead><tbody>`;
     visItems(b).forEach(it => {
       if (it.sub) h += `<tr class="sub"><td colspan="7">${esc(it.sub)}</td></tr>`;
       else if (it.alerts) h += `<tr class="alerts"><td class="l" style="font-weight:700">Indicadores em ATENÇÃO neste check-up</td><td>—</td><td>${alerts.t}</td><td></td><td></td><td></td><td class="ref">Só conta indicadores com referência numérica, no ano atual.</td></tr>`;
