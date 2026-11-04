@@ -125,6 +125,8 @@ table.st tr.top td.lbl .tg:hover{color:#93c5fd}
 .tg .i.sp{visibility:hidden}
 tr.top .tg .i{background:rgba(255,255,255,.2);color:#fff}
 .stopts{margin:0 0 10px;font-size:13px;color:var(--muted)}
+table.st td.cat,table.st th.cat-h{text-align:center;vertical-align:middle;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);background:var(--surface);border-left:1px solid var(--line,#e2e6ee);min-width:110px;padding:6px 10px}
+table.st td.catfill{padding:0;border-left:1px solid var(--line,#e2e6ee)}
 table.st tr.sec td{background:var(--surface);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding:9px 8px}
 table.st tr.calc td{background:#F1F5F9;font-weight:700;color:var(--navy)}
 table.st tr.top td{background:var(--navy);color:#fff;font-weight:800;letter-spacing:.03em}
@@ -480,33 +482,25 @@ function applyState(o){
 
 /* ------------------------------------------------------------------ demonstrativos: definição das linhas */
 const DRE_ROWS = [
-  {sec:'Operacional'},
   {k:'rb', l:'RECEITA BRUTA', h:'Total vendido antes de impostos e devoluções.', top:1, tone:'g'},
-  {k:'imp', l:'Impostos sobre as Vendas', h:'Positivo. ICMS, PIS, COFINS, ISS. Se a receita já está líquida, deixe 0.'},
-  {k:'dev', l:'Devoluções', h:'Positivo. Inclui abatimentos e cancelamentos.'},
+  {k:'imp', l:'(−) Tributos sobre Vendas', h:'Positivo. ICMS, PIS, COFINS, ISS. Se a receita já está líquida, deixe 0.', cat:'Fiscal'},
+  {k:'dev', l:'(−) Devoluções, Cancelamentos e Abatimentos', h:'Positivo.'},
   {c:'rl', l:'RECEITA LÍQUIDA', f:s => s.rl, top:1, tone:'b'},
-  {k:'cmv', l:'CMV / CPV / CSP', h:'Custo do que foi vendido (mercadoria, produto ou serviço). Positivo.'},
-  {c:'lb', l:'LUCRO BRUTO', f:s => s.lb, top:1, tone:'b'},
-  {k:'dv', l:'Despesas com Vendas', h:'Comerciais, marketing, comissões. Positivo.'},
-  {k:'ga', l:'Despesas Administrativas', h:'Gerais e administrativas. Positivo.'},
-  {k:'od', l:'Outras Despesas', h:'Outras despesas operacionais (perdas, baixas, provisões). Positivo.'},
-  {k:'orr', l:'Outras Receitas', h:'Outras receitas operacionais (venda de imobilizado, de atletas, reversões). Positivo.'},
-  {c:'ebit', l:'LUCRO (PREJUÍZO) OPERACIONAL', f:s => s.ebit, top:1, tone:'b', h:'Subtotal da categoria Operacional (CPC 51 / IFRS 18). Lucro Bruto − Vendas − Administrativas − Outras Despesas + Outras Receitas. Equivale ao antigo EBIT.'},
-  {c:'ebitda', l:'EBITDA', f:s => s.ebitda, top:1, tone:'b', h:'Lucro operacional + D&A. No CPC 51 o EBITDA não é subtotal da DRE: é uma medida de desempenho definida pela administração, divulgada em nota.'},
-  {k:'da', l:'Depreciação e Amortização', h:'Já está dentro dos custos e despesas acima: por isso entra somada no EBITDA. Positivo. Se ela só aparece na DFC, deixe em branco aqui e preencha na DFC: o Fluxe usa a da DFC.', ph:'da_dfc'},
-  {sec:'Investimento'},
-  {k:'eqp', l:'Resultado de Equivalência Patrimonial', h:'Lucro de coligadas e controladas em conjunto. Lucro = positivo; prejuízo = negativo.'},
-  {k:'rf', l:'Receitas Financeiras', h:'Rendimentos de caixa e aplicações financeiras. Positivo.'},
-  {c:'lafin', l:'LUCRO (PREJUÍZO) ANTES DO FINANCIAMENTO E DOS TRIBUTOS', f:s => s.lafin, top:1, tone:'b', h:'Lucro operacional + categoria Investimento.'},
-  {sec:'Financiamento'},
-  {k:'df', l:'Despesas Financeiras', h:'Juros de empréstimos, debêntures e arrendamentos, variação cambial passiva, encargos. Positivo.'},
-  {c:'lair', l:'LUCRO (PREJUÍZO) ANTES DOS TRIBUTOS SOBRE O LUCRO', f:s => s.lair, top:1, tone:'b'},
-  {sec:'Tributos sobre o lucro'},
-  {k:'ir', l:'IR / CSLL', h:'Total do período (corrente + diferido). Positivo se despesa; negativo se crédito.'},
-  {c:'lop', l:'LUCRO (PREJUÍZO) DAS OPERAÇÕES CONTINUADAS', f:s => s.lop, top:1, tone:'b'},
-  {sec:'Operações descontinuadas'},
-  {k:'desc', l:'Resultado de Operações Descontinuadas', h:'Líquido de impostos. Lucro = positivo; prejuízo = negativo.'},
-  {c:'ll', l:'LUCRO (PREJUÍZO) DO PERÍODO', f:s => s.ll, top:1, tone:'b'}
+  {k:'cmv', l:'(−) CMV / CPV / CSP', h:'Custo do que foi vendido (mercadoria, produto ou serviço). Positivo.', cat:'Operacional'},
+  {k:'dv', l:'(−) Despesas com Vendas e Marketing', h:'Comerciais, marketing, comissões. Positivo.'},
+  {k:'ga', l:'(−) Despesas Administrativas', h:'Gerais e administrativas (pessoal administrativo incluso). Positivo.'},
+  {k:'od', l:'(−) Outras Despesas', h:'Outras despesas operacionais (perdas, baixas, impairment, provisões). Positivo.'},
+  {k:'orr', l:'(+) Outras Receitas', h:'Outras receitas operacionais (venda de imobilizado, de atletas, reversões). Positivo.'},
+  {k:'da', l:'Depreciação e Amortização (já incluída acima)', h:'Informativa: já está dentro dos custos e despesas acima, não é subtraída de novo. Serve para calcular o EBITDA na aba Análise. Positivo. Se ela só aparece na DFC, deixe em branco aqui e preencha na DFC: o Fluxe usa a da DFC.', ph:'da_dfc'},
+  {c:'ebit', l:'LUCRO (PREJUÍZO) OPERACIONAL', f:s => s.ebit, top:1, tone:'b', h:'Receita Líquida − CMV − Vendas − Administrativas − Outras Despesas + Outras Receitas (CPC 51 / IFRS 18). Equivale ao antigo EBIT.'},
+  {k:'eqp', l:'(+/−) Equivalência Patrimonial', h:'Lucro de coligadas e controladas em conjunto. Lucro = positivo; prejuízo = negativo.', cat:'Investimentos'},
+  {k:'rf', l:'(+) Receitas Financeiras (caixa e aplicações)', h:'Rendimentos de caixa, equivalentes e aplicações financeiras. Positivo.'},
+  {c:'lafin', l:'LUCRO (PREJUÍZO) ANTES DO FINANCIAMENTO E DOS TRIBUTOS', f:s => s.lafin, top:1, tone:'b', h:'Lucro operacional + categoria Investimentos.'},
+  {k:'df', l:'(−) Despesas de Juros e Financiamentos', h:'Juros de empréstimos, debêntures e arrendamentos, variação cambial passiva, encargos. Positivo.', cat:'Financiamentos'},
+  {c:'lair', l:'RESULTADO ANTES DO IR E CSLL', f:s => s.lair, top:1, tone:'b'},
+  {k:'ir', l:'(−) IR / CSLL', h:'Total do período (corrente + diferido). Positivo se despesa; negativo se crédito.', cat:'Tributos'},
+  {k:'desc', l:'(+/−) Resultado de Operações Descontinuadas', h:'Líquido de impostos. Lucro = positivo; prejuízo = negativo.'},
+  {c:'ll', l:'LUCRO (PREJUÍZO) LÍQUIDO', f:s => s.ll, top:1, tone:'b'}
 ];
 const BP_ROWS = [
   {c:'ativo', l:'ATIVO', f:s => s.ativo, top:1, chk:1},
@@ -869,20 +863,27 @@ function lblCell(r){
   return `<td class="lbl"><button type="button" class="tg" ${r.h ? '' : 'tabindex="-1" style="cursor:default"'}>${ic}<span>${esc(r.l)}</span></button>${hint}</td>`;
 }
 function buildStatement(panel, rows, intro, nextLabel, nextTab, opts = {}){
-  let h = `<div id="top-${panel}"></div>` + intro + `<div class="strow"><label class="stopts"><input type="checkbox" class="stAll"> Mostrar todas as explicações</label><button class="btn light sm" type="button" data-clear="${panel}">${{dre: 'Limpar DRE', bp: 'Limpar balanço', dfc: 'Limpar DFC'}[panel]}</button></div>` + '<p class="swipe">Deslize a tabela para o lado para ver a variação →</p><div class="tscroll"><table class="st' + (opts.indent ? ' indent' : '') + '"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th></tr></thead><tbody>';
+  let h = `<div id="top-${panel}"></div>` + intro + `<div class="strow"><label class="stopts"><input type="checkbox" class="stAll"> Mostrar todas as explicações</label><button class="btn light sm" type="button" data-clear="${panel}">${{dre: 'Limpar DRE', bp: 'Limpar balanço', dfc: 'Limpar DFC'}[panel]}</button></div>` + '<p class="swipe">Deslize a tabela para o lado para ver a variação →</p><div class="tscroll"><table class="st' + (opts.indent ? ' indent' : '') + '"><thead><tr><th>Conta</th><th class="yh0"></th><th class="yh1"></th><th class="col-var">Var. %</th><th class="col-var">Var.</th>' + (opts.cat ? '<th class="cat-h">Categoria</th>' : '') + '</tr></thead><tbody>';
+  let cover = 0;
+  const catCell = r => {
+    if (!opts.cat) return '';
+    if (r.cat) { const i = rows.indexOf(r); let n = 1; while (rows[i + n] && !rows[i + n].c && !rows[i + n].top) n++; cover = n - 1; return `<td class="cat" rowspan="${n}">${esc(r.cat)}</td>`; }
+    if (cover > 0) { cover--; return ''; }
+    return '<td class="catfill"></td>';
+  };
   rows.forEach(r => {
     if (r.sec) { h += `<tr class="sec"><td colspan="5">${esc(r.sec)}</td></tr>`; return; }
     const tone = r.top && r.tone ? ' t' + r.tone : '';
     const cls = r.c ? ['calc', r.top ? 'top' + tone : '', r.grp ? 'grp ' + r.grp : '', r.chk && !r.top ? 'chk' : '', r.subrow || r.sub ? 'subrow' : ''].filter(Boolean).join(' ') : (r.top ? 'top' + tone : r.hl ? 'hl' : '');
     const lbl = lblCell(r);
     if (r.c) {
-      h += `<tr class="${cls}" data-c="${r.c}">${lbl}<td class="v" data-cv="${r.c}" data-y="0"></td><td class="v" data-cv="${r.c}" data-y="1"></td><td class="v col-var" data-cp="${r.c}"></td><td class="v col-var" data-cd="${r.c}"></td></tr>`;
+      h += `<tr class="${cls}" data-c="${r.c}">${lbl}<td class="v" data-cv="${r.c}" data-y="0"></td><td class="v" data-cv="${r.c}" data-y="1"></td><td class="v col-var" data-cp="${r.c}"></td><td class="v col-var" data-cd="${r.c}"></td>${catCell(r)}</tr>`;
     } else {
       const auto1 = r.y1auto ? `<td class="v" data-cv="cxini1" data-y="1"></td>` : null;
       const ph = r.ph ? ` data-ph="${r.ph}"` : '';
       h += `<tr class="${cls}">${lbl}<td><input class="num" inputmode="decimal" placeholder="0"${ph} data-k="${r.k}" data-y="0" aria-label="${esc(r.l)} ${'ano anterior'}"></td>` +
         (auto1 || `<td><input class="num" inputmode="decimal" placeholder="0"${ph} data-k="${r.k}" data-y="1" aria-label="${esc(r.l)} ${'ano atual'}"></td>`) +
-        `<td class="v col-var" data-vp="${r.k}"></td><td class="v col-var" data-vd="${r.k}"></td></tr>`;
+        `<td class="v col-var" data-vp="${r.k}"></td><td class="v col-var" data-vd="${r.k}"></td>${catCell(r)}</tr>`;
     }
   });
   h += '</tbody></table></div>';
@@ -899,8 +900,8 @@ function buildPanels(){
     `<div class="note"><b>Balanço.</b> Valores positivos (inclusive a depreciação acumulada). Precisa fechar: Ativo = Passivo + PL.</div>`,
     'Próximo: DRE', 'dre', {indent: 1, aside: 1});
   buildStatement('dre', DRE_ROWS,
-    `<div class="note"><b>DRE.</b> Estrutura do CPC 51 (IFRS 18), válida a partir de 2027: categorias Operacional, Investimento, Financiamento e Tributos. Despesas em valores positivos; equivalência e descontinuadas com sinal (lucro +, prejuízo −). Em branco = 0.</div>`,
-    'Próximo: DFC', 'dfc', {back: ['Voltar: Balanço', 'bp']});
+    `<div class="note"><b>DRE.</b> Estrutura do CPC 51 (IFRS 18), válida a partir de 2027: as contas se agrupam em Fiscal, Operacional, Investimentos, Financiamentos e Tributos. Despesas em valores positivos; equivalência e descontinuadas com sinal (lucro +, prejuízo −). Em branco = 0.</div>`,
+    'Próximo: DFC', 'dfc', {back: ['Voltar: Balanço', 'bp'], cat: 1});
   buildStatement('dfc', DFC_ROWS,
     `<div class="note"><b>DFC (método indireto).</b> <b>Entrou caixa = positivo; saiu = negativo.</b> Lucro e depreciação vêm da DRE, se preenchida. O caixa final precisa bater com o Caixa e Equivalentes do balanço.</div>`,
     'Ver análise', 'an', {indent: 1, back: ['Voltar: DRE', 'dre']});
